@@ -91,6 +91,11 @@
             color: var(--charcoal);
         }
 
+        .meta-tag.cost {
+            background-color: #E2E8F0;
+            border: 1px dashed #CBD5E1;
+        }
+
         .meta-tag.fasting {
             background-color: var(--blush-rose);
         }
@@ -223,9 +228,15 @@
                     <input type="text" id="new-provider" placeholder="e.g., Micro Health Laboratories">
                 </div>
                 
-                <div class="form-group">
-                    <label>Price</label>
-                    <input type="text" id="new-price" placeholder="e.g., 300 AED">
+                <div class="form-group" style="display: flex; gap: 15px;">
+                    <div style="flex: 1;">
+                        <label>Selling Price</label>
+                        <input type="text" id="new-price" placeholder="e.g., 300 AED">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Cost Price</label>
+                        <input type="text" id="new-cost" placeholder="e.g., 180 AED">
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -251,13 +262,14 @@
     </div>
 
     <script>
-        // Initial Default Data
+        // Initial Default Data with Cost Prices included
         const defaultPackages = [
             {
                 id: 1,
                 title: "1. GENERAL CHECKUP TEST",
                 provider: "Micro Health Laboratories",
                 price: "150 AED",
+                cost: "100 AED",
                 fasting: "Yes (10-12 hours). Fasting is required primarily for an accurate Lipid Profile.",
                 note: "",
                 testsData: [
@@ -273,6 +285,7 @@
                 title: "2. FIRST TRIMESTER PACKAGE",
                 provider: "Micro Health Laboratories",
                 price: "250 AED",
+                cost: "135 AED",
                 fasting: "No. This package includes a Random Blood Sugar (RBS) test, which does not require fasting.",
                 note: "Target Audience: Expectant mothers in their first trimester of pregnancy.",
                 testsData: [
@@ -288,6 +301,7 @@
                 title: "3. BASIC HEALTH PACKAGE",
                 provider: "Thumbay Lab",
                 price: "75 AED",
+                cost: "25 AED",
                 fasting: "Yes (8-12 hours). Fasting is explicitly required for the Fasting Blood Sugar (FBS) and Lipid Profile.",
                 note: "Target Audience: Patients looking for an affordable, essential baseline health checkup.",
                 testsData: [
@@ -303,6 +317,7 @@
                 title: "4. ESSENTIAL TESTS PACKAGE",
                 provider: "Thumbay Lab",
                 price: "150 AED",
+                cost: "85 AED",
                 fasting: "Yes (10-12 hours). Fasting is required for an accurate Lipid Profile.",
                 note: "Special Note: Includes a Free GP Consultation.",
                 testsData: [
@@ -325,6 +340,18 @@
             const stored = localStorage.getItem('daniaPackages');
             if (stored) {
                 currentPackages = JSON.parse(stored);
+                
+                // Migration logic for old data saved before the cost field existed
+                let updated = false;
+                currentPackages.forEach(pkg => {
+                    if (!pkg.cost) {
+                        const match = defaultPackages.find(d => d.title === pkg.title);
+                        pkg.cost = match ? match.cost : "N/A";
+                        updated = true;
+                    }
+                });
+                if (updated) savePackages();
+
             } else {
                 currentPackages = [...defaultPackages];
                 savePackages();
@@ -344,6 +371,7 @@
 
             currentPackages.forEach(pkg => {
                 let noteHtml = pkg.note ? `<div class="meta-tag">📋 ${pkg.note}</div>` : '';
+                let costHtml = pkg.cost ? `<div class="meta-tag cost">📉 Cost: ${pkg.cost}</div>` : '';
                 
                 let tableRows = pkg.testsData.map(row => `
                     <tr>
@@ -361,6 +389,7 @@
                         <div class="package-meta">
                             <div class="meta-tag">🏥 Provider: ${pkg.provider}</div>
                             <div class="meta-tag">💰 Price: ${pkg.price}</div>
+                            ${costHtml}
                             <div class="meta-tag fasting">⏱️ Fasting: ${pkg.fasting}</div>
                             ${noteHtml}
                         </div>
@@ -384,11 +413,10 @@
         // Handle Authentication
         function authenticate() {
             if (isAdmin) {
-                // Logout logic
                 isAdmin = false;
                 document.getElementById('admin-section').style.display = 'none';
                 document.getElementById('auth-btn').innerText = 'Admin Access (Edit/Add)';
-                renderPackages(); // re-render to hide delete buttons
+                renderPackages();
                 return;
             }
 
@@ -397,7 +425,7 @@
                 isAdmin = true;
                 document.getElementById('admin-section').style.display = 'block';
                 document.getElementById('auth-btn').innerText = 'Lock Admin Access';
-                renderPackages(); // re-render to show delete buttons
+                renderPackages();
             } else if (pwd !== null) {
                 alert("Incorrect Password.");
             }
@@ -408,6 +436,7 @@
             const title = document.getElementById('new-title').value;
             const provider = document.getElementById('new-provider').value;
             const price = document.getElementById('new-price').value;
+            const cost = document.getElementById('new-cost').value || "N/A";
             const fasting = document.getElementById('new-fasting').value;
             const note = document.getElementById('new-note').value;
             const rawTests = document.getElementById('new-tests').value;
@@ -417,7 +446,6 @@
                 return;
             }
 
-            // Parse the textarea into category/test objects
             const testsData = [];
             const lines = rawTests.split('\n');
             lines.forEach(line => {
@@ -438,10 +466,11 @@
             });
 
             const newPkg = {
-                id: Date.now(), // simple unique ID
+                id: Date.now(),
                 title: title,
                 provider: provider,
-                price: price,
+                price: price.includes("AED") ? price : price + " AED",
+                cost: cost.includes("AED") ? cost : cost + " AED",
                 fasting: fasting,
                 note: note,
                 testsData: testsData
@@ -455,6 +484,7 @@
             document.getElementById('new-title').value = '';
             document.getElementById('new-provider').value = '';
             document.getElementById('new-price').value = '';
+            document.getElementById('new-cost').value = '';
             document.getElementById('new-fasting').value = '';
             document.getElementById('new-note').value = '';
             document.getElementById('new-tests').value = '';
@@ -473,14 +503,13 @@
 
         // Reset system to original state
         function resetToDefaults() {
-            if(confirm("Are you sure you want to delete all custom packages and reset to the original default list?")) {
+            if(confirm("Are you sure you want to delete all custom packages and reset to the original default list with cost metrics?")) {
                 currentPackages = [...defaultPackages];
                 savePackages();
                 renderPackages();
             }
         }
 
-        // Initialize App
         window.onload = loadPackages;
     </script>
 </body>
