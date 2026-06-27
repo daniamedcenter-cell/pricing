@@ -35,9 +35,11 @@
         #main-app { display: none; padding-bottom: 100px; }
 
         /* Top Sticky Control Bar */
-        .top-bar { background-color: var(--charcoal); color: var(--white); padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1);}
+        .top-bar { background-color: var(--charcoal); color: var(--white); padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); gap: 15px; flex-wrap: wrap;}
+        .search-container { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .search-container input { padding: 10px 20px; border-radius: 30px; border: 1px solid #555; background-color: #3f4a50; color: var(--white); width: 350px; outline: none; font-family: 'Montserrat', sans-serif; transition: all 0.3s ease; }
         .search-container input:focus { background-color: var(--white); color: var(--charcoal); box-shadow: 0 0 10px rgba(255,255,255,0.2);}
+        .filter-select { padding: 10px 16px; border-radius: 30px; border: 1px solid #555; background-color: #3f4a50; color: var(--white); font-family: 'Montserrat', sans-serif; outline: none; min-width: 150px; }
         .toggle-btn { background-color: transparent; color: var(--white); border: 1px solid var(--white); padding: 8px 20px; border-radius: 30px; cursor: pointer; font-weight: 500; transition: all 0.3s ease; font-family: 'Montserrat', sans-serif; }
         .toggle-btn:hover { background-color: rgba(255,255,255,0.1); }
         .toggle-btn.active { background-color: var(--success-green); border-color: var(--success-green); color: #155724; }
@@ -104,6 +106,8 @@
         .form-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 13px; }
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: 'Montserrat', sans-serif; transition: border-color 0.3s; }
         .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--light-gold); outline: none;}
+        .admin-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; padding-top: 18px; border-top: 1px solid #f0f0f0; }
+        .admin-status { margin-top: 12px; font-size: 12px; color: #64748b; font-weight: 600; }
 
         /* Modals and Canvas */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(44, 53, 57, 0.8); z-index: 3000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
@@ -125,6 +129,12 @@
 
         body.privacy-mode .internal-data { display: none !important; }
         body.privacy-mode .admin-controls { display: none !important; }
+
+        @media (max-width: 720px) {
+            .top-bar { padding: 12px 16px; align-items: stretch; }
+            .search-container, .search-container input, .filter-select, .toggle-btn { width: 100%; }
+            #quote-floating-bar { width: calc(100% - 36px); box-sizing: border-box; border-radius: 18px; justify-content: space-between; }
+        }
     </style>
 </head>
 <body>
@@ -144,6 +154,9 @@
         <div class="top-bar no-print">
             <div class="search-container">
                 <input type="text" id="search-input" onkeyup="fastSearch()" placeholder="Search current category...">
+                <select id="provider-filter" class="filter-select" onchange="applyFilters()" style="display: none;">
+                    <option value="">All Providers</option>
+                </select>
             </div>
             <button id="privacy-toggle" class="toggle-btn" onclick="togglePrivacy()">👁️ Patient View</button>
         </div>
@@ -205,6 +218,12 @@
                         <button id="save-item-btn" onclick="saveOrUpdateItem()">Save Item</button>
                         <button id="cancel-edit-btn" onclick="cancelEdit()" style="display: none; background: #ccc; color: var(--charcoal);">Cancel Edit</button>
                     </div>
+                    <div class="admin-actions">
+                        <button onclick="downloadSharedData()" style="background-color: var(--charcoal);">Export Shared Data</button>
+                        <button onclick="document.getElementById('shared-data-import').click()" style="background-color: #475569;">Import Shared Data</button>
+                        <input id="shared-data-import" type="file" accept="application/json,.json" onchange="importSharedData(event)" style="display: none;">
+                    </div>
+                    <div id="admin-save-status" class="admin-status"></div>
                 </div>
             </div>
         </div>
@@ -282,6 +301,86 @@
         let selectedItemsForQuote = new Map();
         let isAdmin = false;
         let editingItemId = null; // Tracks if we are editing vs adding
+        let sharedData = {};
+        let unsavedSharedChanges = false;
+
+        const editableCategories = ['packages', 'individual', 'medical', 'dental', 'aesthetic'];
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
+
+        function normalizeText(value) {
+            return String(value ?? '').trim();
+        }
+
+        function normalizeItem(item) {
+            return {
+                ...item,
+                title: normalizeText(item.title),
+                arabicTitle: normalizeText(item.arabicTitle),
+                price: normalizeText(item.price || '0 AED'),
+                cost: normalizeText(item.cost || 'N/A'),
+                note: normalizeText(item.note),
+                fasting: normalizeText(item.fasting),
+                provider: normalizeText(item.provider),
+                testsData: Array.isArray(item.testsData) ? item.testsData.map(row => ({
+                    category: normalizeText(row.category || 'General'),
+                    tests: normalizeText(row.tests)
+                })) : undefined
+            };
+        }
+
+        function getProvider(item) {
+            if (item.provider) return item.provider;
+            const providerMatch = String(item.note || '').match(/Provider:\s*([^|]+)/i);
+            return providerMatch ? providerMatch[1].trim() : '';
+        }
+
+        function getPatientNote(item) {
+            return String(item.note || '').replace(/\s*Provider:\s*[^|]+/i, '').trim();
+        }
+
+        function buildSharedDataSnapshot() {
+            const data = {
+                updatedAt: new Date().toISOString(),
+                categories: {}
+            };
+
+            editableCategories.forEach(category => {
+                const defaults = defaultData[category] || [];
+                const defaultIds = new Set(defaults.map(item => item.id));
+                data.categories[category] = (appData[category] || [])
+                    .filter(item => !defaultIds.has(item.id) && item.id < 10000)
+                    .map(normalizeItem);
+            });
+
+            return data;
+        }
+
+        function applySharedData(data) {
+            if (!data || typeof data !== 'object') return;
+            const categories = data.categories || data;
+            editableCategories.forEach(category => {
+                if (Array.isArray(categories[category])) {
+                    const incoming = categories[category].map(normalizeItem);
+                    const defaults = category === 'packages' ? defaultData.packages : (defaultData[category] || []);
+                    if (category === 'individual') {
+                        const synced = (appData.individual || []).filter(item => item.id >= 10000);
+                        appData.individual = [...incoming, ...synced];
+                    } else {
+                        appData[category] = [...defaults, ...incoming.filter(item => !defaults.find(defaultItem => defaultItem.id === item.id))];
+                    }
+                }
+            });
+            sharedData = data;
+        }
 
         // 1. Authentication Logic
         window.onload = function() {
@@ -314,23 +413,30 @@
 
         // 2. Data Logic
         async function loadDataAndSync() {
-            const portalStored = localStorage.getItem('daniaPortalData');
-            if(portalStored) {
-                const stored = JSON.parse(portalStored);
-                appData.individual = stored.individual || [];
-                appData.medical = stored.medical || appData.medical;
-                appData.dental = stored.dental || appData.dental;
-                appData.aesthetic = stored.aesthetic || appData.aesthetic;
-                if (stored.packages && stored.packages.length > 4) {
-                    const customPkgs = stored.packages.filter(p => !defaultData.packages.find(dp => dp.id === p.id));
-                    appData.packages = [...defaultData.packages, ...customPkgs];
-                }
-            }
-
             switchTab('packages');
             
             const syncIndicator = document.getElementById('sync-indicator');
-            syncIndicator.innerHTML = "Attempting to sync latest Excel prices...";
+            syncIndicator.textContent = "Loading shared data and latest Excel prices...";
+
+            try {
+                const sharedResponse = await fetch(`./portal-data.json?v=${Date.now()}`, { cache: 'no-store' });
+                if (sharedResponse.ok) {
+                    applySharedData(await sharedResponse.json());
+                }
+            } catch (error) {
+                console.info("Shared data file not available yet.");
+            }
+
+            const localDraft = localStorage.getItem('daniaPortalDraftData');
+            if (localDraft) {
+                try {
+                    applySharedData(JSON.parse(localDraft));
+                    unsavedSharedChanges = true;
+                    updateAdminStatus();
+                } catch (error) {
+                    console.warn("Local draft data could not be loaded.");
+                }
+            }
             
             try {
                 const response = await fetch('./Combined_Lab_Prices.xlsx');
@@ -348,6 +454,7 @@
                     
                     if (testName && costPriceRaw !== undefined) {
                         const costNum = parseFloat(costPriceRaw);
+                        const cleanLab = String(lab || '').trim();
                         if (!isNaN(costNum) && costNum > 0) {
                             const formatPrice = num => num % 1 !== 0 ? num.toFixed(2) : num;
                             newIndividualData.push({
@@ -356,7 +463,19 @@
                                 arabicTitle: '',
                                 price: formatPrice(costNum * 2) + " AED",
                                 cost: formatPrice(costNum) + " AED",
-                                note: lab ? "Provider: " + lab : ""
+                                note: '',
+                                provider: cleanLab
+                            });
+                        } else {
+                            newIndividualData.push({
+                                id: 10000 + index,
+                                title: String(testName).trim(),
+                                arabicTitle: '',
+                                price: "Confirm with lab",
+                                cost: String(costPriceRaw).trim() || "N/A",
+                                note: "Price on request",
+                                provider: cleanLab,
+                                priceOnRequest: true
                             });
                         }
                     }
@@ -367,15 +486,19 @@
                     const customIndividual = appData.individual.filter(i => i.id < 10000); 
                     appData.individual = [...customIndividual, ...newIndividualData];
                     
-                    syncIndicator.innerHTML = `✓ Successfully synced live tests from GitHub.`;
+                    syncIndicator.textContent = `Synced ${newIndividualData.length} lab tests from Excel.`;
                     syncIndicator.style.color = "var(--success-green)";
+                    updateProviderFilter();
                     if (activeTab === 'individual') renderItems();
                 }
             } catch (error) {
                 console.warn("Excel file not found on GitHub yet.");
-                syncIndicator.innerHTML = "Note: Combined_Lab_Prices.xlsx not found on server.";
+                syncIndicator.textContent = "Note: Combined_Lab_Prices.xlsx not found on server.";
                 syncIndicator.style.color = "#ff4c4c";
             }
+
+            updateProviderFilter();
+            renderItems();
         }
 
         function parsePrice(str) {
@@ -389,6 +512,7 @@
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`tab-${tabName}`).classList.add('active');
             document.getElementById('search-input').value = '';
+            document.getElementById('provider-filter').value = '';
             
             const container = document.getElementById('items-container');
             if (activeTab === 'packages') {
@@ -396,6 +520,7 @@
             } else {
                 container.className = 'items-grid layout-compact';
             }
+            updateProviderFilter();
             renderItems();
         }
 
@@ -406,9 +531,10 @@
             let htmlString = "";
 
             items.forEach(item => {
-                let searchIndex = `${item.title || ''} ${item.arabicTitle || ''} ${item.note || ''}`.toLowerCase();
+                const provider = getProvider(item);
+                let searchIndex = `${item.title || ''} ${item.arabicTitle || ''} ${item.note || ''} ${provider}`.toLowerCase();
                 if (item.testsData && Array.isArray(item.testsData)) {
-                    searchIndex += ' ' + item.testsData.map(t => t.tests || '').join(' ').toLowerCase();
+                    searchIndex += ' ' + item.testsData.map(t => `${t.category || ''} ${t.tests || ''}`).join(' ').toLowerCase();
                 }
 
                 const sPrice = parsePrice(item.price);
@@ -416,13 +542,15 @@
                 const marginNum = sPrice - cPrice;
                 const margin = (sPrice > 0 && cPrice > 0) ? `+${marginNum % 1 !== 0 ? marginNum.toFixed(2) : marginNum} AED` : 'N/A';
 
-                const noteHtml = item.note ? `<div class="meta-tag">✦ ${item.note}</div>` : '';
-                const fastingHtml = item.fasting ? `<div class="meta-tag fasting">⏱️ Prep: ${item.fasting}</div>` : '';
-                const arabicHtml = item.arabicTitle ? `<h3 class="package-arabic-title">${item.arabicTitle}</h3>` : '';
+                const patientNote = getPatientNote(item);
+                const noteHtml = patientNote ? `<div class="meta-tag">${escapeHtml(patientNote)}</div>` : '';
+                const providerHtml = provider ? `<div class="meta-tag internal-data">Provider: ${escapeHtml(provider)}</div>` : '';
+                const fastingHtml = item.fasting ? `<div class="meta-tag fasting">Prep: ${escapeHtml(item.fasting)}</div>` : '';
+                const arabicHtml = item.arabicTitle ? `<h3 class="package-arabic-title">${escapeHtml(item.arabicTitle)}</h3>` : '';
                 
                 let tablesHtml = '';
                 if (activeTab === 'packages' && item.testsData && Array.isArray(item.testsData)) {
-                    const rows = item.testsData.map(row => `<tr><td style="width: 30%;"><strong>${row.category}</strong></td><td>${row.tests}</td></tr>`).join('');
+                    const rows = item.testsData.map(row => `<tr><td style="width: 30%;"><strong>${escapeHtml(row.category)}</strong></td><td>${escapeHtml(row.tests)}</td></tr>`).join('');
                     tablesHtml = `<table><thead><tr><th>Category</th><th>Diagnostics Included</th></tr></thead><tbody>${rows}</tbody></table>`;
                 }
 
@@ -431,21 +559,22 @@
                 const btnText = isSelected ? `✓ Added to Quote` : `➕ Add to Quote`;
 
                 // Admin Controls
-                const adminBtns = isAdmin ? `
+                const adminBtns = isAdmin && item.id < 10000 ? `
                     <button class="edit-btn" onclick="editItem(${item.id})">✏️ Edit</button>
                     <button class="delete-btn" onclick="deleteItem(${item.id})">🗑️ Delete</button>
                 ` : '';
 
                 htmlString += `
-                    <div class="card" data-search="${searchIndex}">
+                    <div class="card" data-search="${escapeHtml(searchIndex)}" data-provider="${escapeHtml(provider)}">
                         <div>
-                            <h2 class="package-title">${item.title || 'Untitled'}</h2>
+                            <h2 class="package-title">${escapeHtml(item.title || 'Untitled')}</h2>
                             ${arabicHtml}
                             <div class="package-meta">
-                                <div class="meta-tag" style="background-color: var(--blush-rose); color: var(--white); border: none;">💳 ${item.price || '0 AED'}</div>
-                                <div class="meta-tag internal-data">📉 Cost: ${item.cost || 'N/A'}</div>
-                                <div class="meta-tag internal-data profit">📈 Margin: ${margin}</div>
+                                <div class="meta-tag" style="background-color: var(--blush-rose); color: var(--white); border: none;">${escapeHtml(item.price || '0 AED')}</div>
+                                <div class="meta-tag internal-data">Cost: ${escapeHtml(item.cost || 'N/A')}</div>
+                                <div class="meta-tag internal-data profit">Margin: ${escapeHtml(margin)}</div>
                                 ${fastingHtml}
+                                ${providerHtml}
                                 ${noteHtml}
                             </div>
                             ${tablesHtml}
@@ -459,19 +588,33 @@
             });
 
             container.innerHTML = htmlString || `<p style="text-align:center; color: #888; width: 100%; grid-column: 1 / -1; padding: 40px 0;">No items found in this category.</p>`;
+            applyFilters();
         }
 
         function fastSearch() {
             clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                const searchTerm = document.getElementById('search-input').value.toLowerCase();
-                const cards = document.querySelectorAll('#items-container .card');
-                cards.forEach(card => {
-                    const searchData = card.getAttribute('data-search');
-                    if (searchData.includes(searchTerm)) card.classList.remove('hidden');
-                    else card.classList.add('hidden');
-                });
-            }, 100);
+            searchTimeout = setTimeout(applyFilters, 100);
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
+            const providerTerm = document.getElementById('provider-filter').value.toLowerCase();
+            const cards = document.querySelectorAll('#items-container .card');
+            cards.forEach(card => {
+                const searchData = card.getAttribute('data-search') || '';
+                const matchesSearch = !searchTerm || searchData.includes(searchTerm);
+                const matchesProvider = !providerTerm || (card.getAttribute('data-provider') || '').toLowerCase() === providerTerm;
+                card.classList.toggle('hidden', !(matchesSearch && matchesProvider));
+            });
+        }
+
+        function updateProviderFilter() {
+            const select = document.getElementById('provider-filter');
+            const providers = [...new Set((appData[activeTab] || []).map(getProvider).filter(Boolean))].sort();
+            select.style.display = providers.length ? 'block' : 'none';
+            const currentValue = select.value;
+            select.innerHTML = `<option value="">All Providers</option>` + providers.map(provider => `<option value="${escapeHtml(provider)}">${escapeHtml(provider)}</option>`).join('');
+            select.value = providers.includes(currentValue) ? currentValue : '';
         }
 
         // 3. Multi-Quote Engine
@@ -522,34 +665,38 @@
             
             const ptName = document.getElementById('patient-name-input').value.trim();
             const ptBox = document.getElementById('qt-patient-box');
-            if (ptName) { ptBox.style.display = 'block'; ptBox.innerHTML = `<strong>Prepared For:</strong> ${ptName}`; } else { ptBox.style.display = 'none'; }
+            if (ptName) { ptBox.style.display = 'block'; ptBox.innerHTML = `<strong>Prepared For:</strong> ${escapeHtml(ptName)}`; } else { ptBox.style.display = 'none'; }
 
             document.getElementById('qt-title').innerText = "Personalized Treatment Plan"; 
             document.getElementById('qt-arabic').innerText = "خطة العلاج المخصصة";
             
             let totalPrice = 0;
+            let hasPriceOnRequest = false;
             let combinedHTML = "";
             let combinedFasting = [];
 
             selectedItemsForQuote.forEach((item) => {
-                totalPrice += parsePrice(item.price);
+                const itemPrice = parsePrice(item.price);
+                if (itemPrice > 0) totalPrice += itemPrice;
+                else hasPriceOnRequest = true;
                 const cleanTitle = item.title.replace(/^\d+\.\s*/, '');
+                const patientNote = item.fasting || getPatientNote(item);
                 
                 combinedHTML += `
                     <div style="border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 20px; margin-bottom: 20px;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <div style="font-size: 22px; font-weight: 600; color: var(--charcoal); font-family: 'Playfair Display', serif;">${cleanTitle}</div>
-                                ${item.arabicTitle ? `<div style="color: var(--light-gold); font-size: 18px; direction: rtl;">${item.arabicTitle}</div>` : ''}
+                                <div style="font-size: 22px; font-weight: 600; color: var(--charcoal); font-family: 'Playfair Display', serif;">${escapeHtml(cleanTitle)}</div>
+                                ${item.arabicTitle ? `<div style="color: var(--light-gold); font-size: 18px; direction: rtl;">${escapeHtml(item.arabicTitle)}</div>` : ''}
                             </div>
-                            <div style="font-size: 20px; font-weight: bold; color: var(--charcoal);">${item.price}</div>
+                            <div style="font-size: 20px; font-weight: bold; color: var(--charcoal);">${escapeHtml(item.price)}</div>
                         </div>
                 `;
 
-                if (item.fasting || item.note) combinedFasting.push(`<strong>${cleanTitle}:</strong> ${item.fasting || item.note}`);
+                if (patientNote) combinedFasting.push(`<strong>${escapeHtml(cleanTitle)}:</strong> ${escapeHtml(patientNote)}`);
 
                 if (item.testsData && Array.isArray(item.testsData) && item.testsData.length > 0) {
-                    const testsList = item.testsData.map(row => `<span style="color: var(--charcoal); font-weight: 600;">${row.category}:</span> <span style="color: #666;">${row.tests}</span>`).join('<br>');
+                    const testsList = item.testsData.map(row => `<span style="color: var(--charcoal); font-weight: 600;">${escapeHtml(row.category)}:</span> <span style="color: #666;">${escapeHtml(row.tests)}</span>`).join('<br>');
                     combinedHTML += `<div style="font-size: 13px; margin-top: 15px; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #eee; line-height: 1.6;">${testsList}</div>`;
                 }
                 combinedHTML += `</div>`;
@@ -565,7 +712,7 @@
                 fastingContainer.style.display = 'none';
             }
 
-            document.getElementById('qt-price').innerText = `Total: ${totalPrice} AED`;
+            document.getElementById('qt-price').innerText = hasPriceOnRequest ? `Total: ${totalPrice} AED + items to confirm` : `Total: ${totalPrice} AED`;
 
             const targetNode = document.getElementById('quote-template');
             const wrapper = document.getElementById('quote-template-wrapper');
@@ -614,11 +761,66 @@
                     isAdmin = true;
                     adminSection.style.display = 'block';
                     authBtn.innerText = 'Lock Admin Editor';
+                    updateAdminStatus();
                     renderItems();
                 } else {
                     alert("Incorrect Edit Code.");
                 }
             }
+        }
+
+        function markSharedDataDirty() {
+            const snapshot = buildSharedDataSnapshot();
+            localStorage.setItem('daniaPortalDraftData', JSON.stringify(snapshot));
+            sharedData = snapshot;
+            unsavedSharedChanges = true;
+            updateAdminStatus();
+        }
+
+        function updateAdminStatus() {
+            const status = document.getElementById('admin-save-status');
+            if (!status) return;
+            status.textContent = unsavedSharedChanges
+                ? "Draft saved on this device. Export Shared Data and upload portal-data.json to GitHub to update everyone."
+                : "Shared data loaded.";
+        }
+
+        function downloadSharedData() {
+            const snapshot = buildSharedDataSnapshot();
+            const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'portal-data.json';
+            link.click();
+            URL.revokeObjectURL(link.href);
+            unsavedSharedChanges = false;
+            localStorage.removeItem('daniaPortalDraftData');
+            sharedData = snapshot;
+            updateAdminStatus();
+        }
+
+        function importSharedData(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    const imported = JSON.parse(reader.result);
+                    const syncedIndividual = (appData.individual || []).filter(item => item.id >= 10000);
+                    appData = JSON.parse(JSON.stringify(defaultData));
+                    appData.individual = syncedIndividual;
+                    applySharedData(imported);
+                    markSharedDataDirty();
+                    updateProviderFilter();
+                    renderItems();
+                    alert("Shared data imported.");
+                } catch (error) {
+                    alert("Could not import this JSON file.");
+                } finally {
+                    event.target.value = '';
+                }
+            };
+            reader.readAsText(file);
         }
 
         // Core Edit Functionality
@@ -665,7 +867,7 @@
 
         function saveOrUpdateItem() {
             const cat = document.getElementById('new-category').value;
-            const title = document.getElementById('new-title').value;
+            const title = document.getElementById('new-title').value.trim();
             if (!title) { alert("English Title is required."); return; }
 
             let testsData = [];
@@ -690,13 +892,13 @@
                 const updatedItem = {
                     id: editingItemId,
                     title: title,
-                    arabicTitle: document.getElementById('new-arabic').value,
-                    price: document.getElementById('new-price').value || '0 AED',
-                    cost: document.getElementById('new-cost').value || 'N/A',
-                    note: document.getElementById('new-note').value
+                    arabicTitle: document.getElementById('new-arabic').value.trim(),
+                    price: document.getElementById('new-price').value.trim() || '0 AED',
+                    cost: document.getElementById('new-cost').value.trim() || 'N/A',
+                    note: document.getElementById('new-note').value.trim()
                 };
                 if (cat === 'packages') {
-                    updatedItem.fasting = document.getElementById('new-fasting').value;
+                    updatedItem.fasting = document.getElementById('new-fasting').value.trim();
                     updatedItem.testsData = testsData;
                 }
 
@@ -708,11 +910,11 @@
             } else {
                 // Save New Path
                 const newItem = {
-                    id: Date.now(), title: title, arabicTitle: document.getElementById('new-arabic').value,
-                    price: document.getElementById('new-price').value || '0 AED', cost: document.getElementById('new-cost').value || 'N/A', note: document.getElementById('new-note').value
+                    id: Date.now(), title: title, arabicTitle: document.getElementById('new-arabic').value.trim(),
+                    price: document.getElementById('new-price').value.trim() || '0 AED', cost: document.getElementById('new-cost').value.trim() || 'N/A', note: document.getElementById('new-note').value.trim()
                 };
                 if (cat === 'packages') {
-                    newItem.fasting = document.getElementById('new-fasting').value;
+                    newItem.fasting = document.getElementById('new-fasting').value.trim();
                     newItem.testsData = testsData;
                 }
 
@@ -722,7 +924,7 @@
                 ['new-title', 'new-arabic', 'new-price', 'new-cost', 'new-fasting', 'new-note', 'new-tests'].forEach(id => document.getElementById(id).value = '');
             }
 
-            localStorage.setItem('daniaPortalData', JSON.stringify(appData));
+            markSharedDataDirty();
             if (activeTab !== cat) switchTab(cat); else renderItems();
         }
 
@@ -732,7 +934,7 @@
                 for (let category in appData) {
                     appData[category] = appData[category].filter(i => i.id !== id);
                 }
-                localStorage.setItem('daniaPortalData', JSON.stringify(appData));
+                markSharedDataDirty();
                 
                 if(selectedItemsForQuote.has(id)) {
                     selectedItemsForQuote.delete(id);
