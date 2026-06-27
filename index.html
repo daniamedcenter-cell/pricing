@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dania Medical Center - Premium Blood Test Packages</title>
-    <!-- Google Fonts for Luxury Aesthetic -->
+    <title>Dania Medical Center - Front Office Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <!-- html2canvas library for generating PNG quotes -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
-            /* Dania Medical Center Luxury Palette */
             --blush-rose: #E8C3C8;
             --soft-blush: #FDF9FA;
             --light-gold: #D4AF37;
@@ -21,324 +19,111 @@
             --success-green: #e6f4ea;
         }
 
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--ivory);
-            color: var(--charcoal);
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-            transition: background-color 0.3s;
-        }
-
-        h1, h2, h3, .package-title {
-            font-family: 'Playfair Display', serif;
-        }
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--ivory); color: var(--charcoal); margin: 0; padding: 0; line-height: 1.6; transition: background-color 0.3s; }
+        h1, h2, h3, .package-title { font-family: 'Playfair Display', serif; }
 
         /* Top Control Bar */
-        .top-bar {
-            background-color: var(--charcoal);
-            color: var(--white);
-            padding: 12px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .search-container input {
-            padding: 10px 20px;
-            border-radius: 30px;
-            border: 1px solid #555;
-            background-color: #3f4a50;
-            color: var(--white);
-            width: 350px;
-            outline: none;
-            font-family: 'Montserrat', sans-serif;
-            transition: all 0.3s ease;
-        }
-        .search-container input:focus {
-            background-color: var(--white);
-            color: var(--charcoal);
-        }
-
-        .toggle-btn {
-            background-color: transparent;
-            color: var(--white);
-            border: 1px solid var(--white);
-            padding: 8px 20px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            font-family: 'Montserrat', sans-serif;
-        }
-        
+        .top-bar { background-color: var(--charcoal); color: var(--white); padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .search-container input { padding: 10px 20px; border-radius: 30px; border: 1px solid #555; background-color: #3f4a50; color: var(--white); width: 350px; outline: none; font-family: 'Montserrat', sans-serif; transition: all 0.3s ease; }
+        .search-container input:focus { background-color: var(--white); color: var(--charcoal); }
+        .toggle-btn { background-color: transparent; color: var(--white); border: 1px solid var(--white); padding: 8px 20px; border-radius: 30px; cursor: pointer; font-weight: 500; transition: all 0.3s ease; font-family: 'Montserrat', sans-serif; }
         .toggle-btn:hover { background-color: rgba(255,255,255,0.1); }
         .toggle-btn.active { background-color: var(--success-green); border-color: var(--success-green); color: #155724; }
 
-        .header {
-            background-color: var(--white);
-            text-align: center;
-            padding: 40px 20px;
-            border-bottom: 1px solid var(--blush-rose);
-        }
+        /* Portal Navigation Tabs */
+        .portal-nav { background-color: var(--white); display: flex; justify-content: center; border-bottom: 2px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 100; }
+        .tab-btn { background: none; border: none; color: var(--charcoal); padding: 18px 25px; font-size: 14px; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-bottom: 3px solid transparent; transition: all 0.3s; font-family: 'Montserrat', sans-serif; }
+        .tab-btn:hover { color: var(--light-gold); background-color: var(--soft-blush); }
+        .tab-btn.active { border-bottom-color: var(--light-gold); color: var(--light-gold); background-color: var(--soft-gold); }
 
-        .logo {
-            max-width: 250px;
-            height: auto;
-            margin-bottom: 15px;
-        }
+        .header { background-color: var(--white); text-align: center; padding: 40px 20px 20px; border-bottom: 1px solid var(--blush-rose); }
+        .logo { max-width: 250px; height: auto; margin-bottom: 15px; }
+        .header p { margin: 5px 0 0; color: var(--light-gold); font-weight: 500; letter-spacing: 2px; text-transform: uppercase; font-size: 14px; }
 
-        .header p {
-            margin: 5px 0 0;
-            color: var(--light-gold);
-            font-weight: 500;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            font-size: 14px;
-        }
+        .container { max-width: 1050px; margin: 40px auto; padding: 0 20px; }
+        .items-grid { display: grid; gap: 25px; grid-template-columns: 1fr; }
+        .items-grid.grid-view { grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); }
 
-        .container {
-            max-width: 1050px;
-            margin: 50px auto;
-            padding: 0 20px;
-        }
+        .card { background-color: var(--white); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); position: relative; transition: transform 0.3s ease, box-shadow 0.3s ease; display: flex; flex-direction: column; justify-content: space-between; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(212, 175, 55, 0.08); }
 
-        .package-card {
-            background-color: var(--white);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            border-radius: 12px;
-            padding: 35px;
-            margin-bottom: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-            position: relative;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
+        .package-title { color: var(--charcoal); font-size: 20px; font-weight: 600; margin: 0 0 5px; line-height: 1.3; }
+        .package-arabic-title { font-size: 20px; color: var(--light-gold); margin: 0 0 15px; padding-bottom: 15px; text-align: left; direction: rtl; border-bottom: 1px solid rgba(232, 195, 200, 0.5); }
 
-        .package-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(212, 175, 55, 0.08);
-        }
-
-        .package-title {
-            color: var(--charcoal);
-            font-size: 26px;
-            font-weight: 600;
-            margin-top: 0;
-            margin-bottom: 5px;
-        }
-
-        .package-arabic-title {
-            font-size: 22px;
-            color: var(--light-gold);
-            margin-top: 0;
-            padding-bottom: 15px;
-            text-align: left;
-            direction: rtl;
-            border-bottom: 1px solid rgba(232, 195, 200, 0.5);
-        }
-
-        .package-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 25px;
-            margin-top: 20px;
-            font-size: 13px;
-        }
-
-        .meta-tag {
-            background-color: var(--soft-gold);
-            padding: 6px 16px;
-            border-radius: 30px;
-            font-weight: 600;
-            color: var(--charcoal);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            letter-spacing: 0.5px;
-        }
-
-        .internal-data {
-            background-color: #f1f5f9;
-            border: 1px dashed #cbd5e1;
-            color: #475569;
-        }
-
+        .package-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; font-size: 13px; }
+        .meta-tag { background-color: var(--soft-gold); padding: 6px 14px; border-radius: 30px; font-weight: 600; color: var(--charcoal); border: 1px solid rgba(212, 175, 55, 0.3); }
+        .internal-data { background-color: #f1f5f9; border: 1px dashed #cbd5e1; color: #475569; }
         .meta-tag.fasting { background-color: var(--soft-blush); border-color: var(--blush-rose); color: #9A6A71; }
         .meta-tag.profit { background-color: #f0fdf4; color: #166534; border: 1px dashed #86efac; }
 
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin-top: 15px;
-            border: 1px solid #f0f0f0;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 15px; border: 1px solid #f0f0f0; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #f0f0f0; font-size: 14px;}
         td:first-child { border-right: 1px solid #f0f0f0; }
         tr:last-child td { border-bottom: none; }
-
-        th { 
-            background-color: var(--soft-blush); 
-            color: var(--charcoal); 
-            font-weight: 600; 
-            font-family: 'Playfair Display', serif;
-            font-size: 16px;
-        }
-        
+        th { background-color: var(--soft-blush); color: var(--charcoal); font-weight: 600; font-family: 'Playfair Display', serif; font-size: 16px; }
         tr:hover { background-color: #fafafa; }
 
-        .btn-group {
-            display: flex;
-            gap: 12px;
-            margin-top: 25px;
-            justify-content: flex-end;
-        }
-
-        button {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--light-gold);
-            color: var(--white);
-            border: none;
-            padding: 10px 24px;
-            font-size: 13px;
-            font-weight: 600;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.3s;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
+        .btn-group { display: flex; gap: 10px; margin-top: 25px; justify-content: flex-end; }
+        button { font-family: 'Montserrat', sans-serif; background-color: var(--light-gold); color: var(--white); border: none; padding: 10px 20px; font-size: 12px; font-weight: 600; border-radius: 30px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px;}
         button:hover { background-color: #b8962e; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3); }
         .quote-btn { background-color: var(--charcoal); }
-        .quote-btn:hover { background-color: #1a2023; box-shadow: 0 4px 10px rgba(44, 53, 57, 0.3); }
-        .delete-btn { background-color: #fff; color: #ff4c4c; border: 1px solid #ff4c4c; }
-        .delete-btn:hover { background-color: #ff4c4c; color: #fff; box-shadow: 0 4px 10px rgba(255, 76, 76, 0.3); }
+        .quote-btn:hover { background-color: #1a2023; }
 
-        /* Modal Styles */
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(44, 53, 57, 0.8); z-index: 1000; justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
-        }
-        .modal {
-            background: var(--white); padding: 40px; border-radius: 15px; width: 450px;
-            text-align: center; border: 1px solid var(--light-gold); box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-        }
+        /* Sync Status Indicator */
+        .sync-status { text-align: center; font-size: 13px; color: var(--light-gold); margin-top: 10px; font-weight: 600;}
+
+        /* Modals and Canvas */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(44, 53, 57, 0.8); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal { background: var(--white); padding: 40px; border-radius: 15px; width: 450px; text-align: center; border: 1px solid var(--light-gold); box-shadow: 0 20px 50px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;}
         .modal h3 { font-size: 24px; margin-top: 0; color: var(--charcoal); }
-        .modal input {
-            width: 90%; padding: 12px 15px; margin: 20px 0; border: 1px solid #ddd; border-radius: 8px; 
-            font-size: 15px; font-family: 'Montserrat', sans-serif;
-            outline: none; transition: border-color 0.3s;
-        }
-        .modal input:focus { border-color: var(--light-gold); }
-
-        /* Hidden PNG Canvas Template */
-        #quote-template-wrapper { position: absolute; left: -9999px; top: -9999px; }
-        #quote-template {
-            width: 850px; padding: 60px; background-color: var(--white); color: var(--charcoal);
-            box-sizing: border-box; font-family: 'Montserrat', sans-serif;
-            position: relative;
-        }
-        /* Decorative frame inside quote */
-        #quote-template::after {
-            content: ''; position: absolute; top: 20px; left: 20px; right: 20px; bottom: 20px;
-            border: 1px solid var(--light-gold); pointer-events: none;
-        }
+        .modal input, .modal select { width: 90%; padding: 12px 15px; margin: 15px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; font-family: 'Montserrat', sans-serif; outline: none; transition: border-color 0.3s; }
         
+        #quote-template-wrapper { position: absolute; left: -9999px; top: -9999px; }
+        #quote-template { width: 850px; padding: 60px; background-color: var(--white); color: var(--charcoal); box-sizing: border-box; font-family: 'Montserrat', sans-serif; position: relative; }
+        #quote-template::after { content: ''; position: absolute; top: 20px; left: 20px; right: 20px; bottom: 20px; border: 1px solid var(--light-gold); pointer-events: none; }
         .qt-header { text-align: center; margin-bottom: 40px; }
         .qt-header img { max-width: 280px; }
-        .qt-patient { 
-            font-size: 18px; font-weight: 500; margin-bottom: 30px; padding: 15px; 
-            background: var(--soft-blush); border-left: 4px solid var(--blush-rose); 
-            text-align: left; color: var(--charcoal); 
-        }
+        .qt-patient { font-size: 18px; font-weight: 500; margin-bottom: 30px; padding: 15px; background: var(--soft-blush); border-left: 4px solid var(--blush-rose); text-align: left; color: var(--charcoal); }
         .qt-title { font-family: 'Playfair Display', serif; font-size: 32px; color: var(--charcoal); margin: 0 0 10px 0; text-align: center;}
         .qt-arabic { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--light-gold); margin: 0 0 30px 0; text-align: center; direction: rtl;}
-        
         .qt-body-box { background: var(--soft-gold); padding: 30px; border-radius: 8px; margin-bottom: 30px; }
         .qt-price-box { font-size: 36px; font-weight: 600; color: var(--light-gold); text-align: center; margin: 30px 0; font-family: 'Playfair Display', serif;}
-        .qt-footer { 
-            text-align: center; margin-top: 40px; font-size: 12px; color: #888; 
-            border-top: 1px solid #eee; padding-top: 20px; letter-spacing: 0.5px;
-        }
+        .qt-footer { text-align: center; margin-top: 40px; font-size: 12px; color: #888; border-top: 1px solid #eee; padding-top: 20px; }
 
-        /* Admin form styles */
-        .admin-controls { margin-top: 60px; text-align: center; padding-top: 30px; border-top: 1px solid rgba(0,0,0,0.05); }
-        .admin-form { display: none; background: var(--white); padding: 35px; border-radius: 12px; border: 1px solid var(--blush-rose); margin-top: 30px; text-align: left; box-shadow: 0 10px 30px rgba(232, 195, 200, 0.15);}
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
-        .form-group input, .form-group textarea { 
-            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; 
-            font-family: 'Montserrat', sans-serif; transition: border-color 0.3s;
-        }
-        .form-group input:focus, .form-group textarea:focus { border-color: var(--light-gold); outline: none;}
-        
-        /* Privacy Mode Logic */
         body.privacy-mode .internal-data { display: none !important; }
-        body.privacy-mode .admin-controls { display: none !important; }
-
-        @media print {
-            .top-bar, .btn-group, .admin-controls, .meta-tag.internal-data { display: none !important; }
-            body { background-color: var(--white); }
-            .package-card { box-shadow: none; border: 1px solid #eee; break-inside: avoid; margin-bottom: 40px; padding: 20px;}
-            .container { margin: 0; max-width: 100%; }
-        }
     </style>
 </head>
 <body>
 
-    <div class="top-bar" class="no-print">
+    <div class="top-bar no-print">
         <div class="search-container">
-            <input type="text" id="search-input" onkeyup="filterPackages()" placeholder="Search packages or tests...">
+            <input type="text" id="search-input" onkeyup="renderItems()" placeholder="Search current category...">
         </div>
         <button id="privacy-toggle" class="toggle-btn" onclick="togglePrivacy()">👁️ Patient View</button>
     </div>
 
-    <div class="header">
+    <div class="header no-print">
         <img src="https://daniamc.com/DMC_Marketing_Logo_Source_edited%20copy.png" alt="Dania Medical Center Logo" class="logo">
-        <p>Premium Laboratory Services</p>
+        <p>Front Office Portal</p>
+        <div id="sync-indicator" class="sync-status">Attempting to sync latest Excel prices...</div>
+    </div>
+
+    <div class="portal-nav no-print">
+        <button class="tab-btn active" onclick="switchTab('packages')" id="tab-packages">Blood Packages</button>
+        <button class="tab-btn" onclick="switchTab('individual')" id="tab-individual">Individual Tests</button>
+        <button class="tab-btn" onclick="switchTab('medical')" id="tab-medical">Medical</button>
+        <button class="tab-btn" onclick="switchTab('dental')" id="tab-dental">Dental</button>
+        <button class="tab-btn" onclick="switchTab('aesthetic')" id="tab-aesthetic">Aesthetics</button>
     </div>
 
     <div class="container">
-        <div id="packages-container"></div>
-
-        <div class="admin-controls">
-            <button id="auth-btn" onclick="authenticate()" style="background-color: var(--charcoal);">Admin Access</button>
-            <div id="admin-section" class="admin-form">
-                <h3 style="font-family: 'Playfair Display', serif; color: var(--charcoal); margin-top:0; border-bottom: 1px solid var(--blush-rose); padding-bottom: 15px;">Add Custom Package</h3>
-                <div class="form-group"><label>English Title</label><input type="text" id="new-title" placeholder="e.g., 5. COMPREHENSIVE MALE PACKAGE"></div>
-                <div class="form-group"><label>Arabic Title</label><input type="text" id="new-arabic" placeholder="e.g., الفحص الشامل للرجال" dir="rtl"></div>
-                <div class="form-group"><label>Provider</label><input type="text" id="new-provider" placeholder="e.g., Micro Health Laboratories"></div>
-                <div style="display: flex; gap: 15px; margin-bottom: 20px;">
-                    <div style="flex: 1;"><label>Selling Price</label><input type="text" id="new-price" placeholder="e.g., 300 AED"></div>
-                    <div style="flex: 1;"><label>Cost Price (Internal)</label><input type="text" id="new-cost" placeholder="e.g., 180 AED"></div>
-                </div>
-                <div class="form-group"><label>Fasting Requirement</label><input type="text" id="new-fasting" placeholder="e.g., Yes (10-12 hours)"></div>
-                <div class="form-group"><label>Special Note</label><input type="text" id="new-note" placeholder="e.g., Includes Free GP Consultation"></div>
-                <div class="form-group">
-                    <label>Tests Included (Category | Tests)</label>
-                    <textarea id="new-tests" rows="5" placeholder="General Chemistry | Calcium, Uric acid&#10;Hormones | TSH, T4"></textarea>
-                </div>
-                <button onclick="addPackage()">Save Package</button>
-                <button onclick="resetToDefaults()" style="background-color: #fff; color: var(--charcoal); border: 1px solid var(--charcoal); margin-left: 10px;">Reset Defaults</button>
-            </div>
-        </div>
+        <div id="items-container" class="items-grid"></div>
     </div>
 
-    <!-- Modal for Quote Generation -->
     <div id="quote-modal" class="modal-overlay">
         <div class="modal">
             <h3>Patient Quote</h3>
-            <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Enter patient details to personalize the aesthetic quote.</p>
+            <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Enter patient details to personalize the quote.</p>
             <input type="text" id="patient-name-input" placeholder="Patient Name or Phone (Optional)">
             <div style="margin-top: 20px; display: flex; gap: 12px; justify-content: center;">
                 <button onclick="closeQuoteModal()" style="background: #f1f1f1; color: var(--charcoal);">Cancel</button>
@@ -347,27 +132,21 @@
         </div>
     </div>
 
-    <!-- Hidden Template rendered into PNG by html2canvas -->
     <div id="quote-template-wrapper">
         <div id="quote-template">
-            <div class="qt-header">
-                <img src="https://daniamc.com/DMC_Marketing_Logo_Source_edited%20copy.png" alt="Dania Medical Center Logo">
-            </div>
-            
+            <div class="qt-header"><img src="https://daniamc.com/DMC_Marketing_Logo_Source_edited%20copy.png" alt="Logo"></div>
             <div id="qt-patient-box" class="qt-patient"></div>
-            
             <h2 id="qt-title" class="qt-title"></h2>
             <h3 id="qt-arabic" class="qt-arabic"></h3>
             
-            <div class="qt-body-box">
-                <p style="margin-top:0; border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 10px;">
-                    <strong>Clinical Prep:</strong> <span id="qt-fasting" style="color: var(--charcoal);"></span>
+            <div class="qt-body-box" id="qt-body-box">
+                <p id="qt-fasting-container" style="margin-top:0; border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 10px;">
+                    <strong>Note / Prep:</strong> <span id="qt-fasting" style="color: var(--charcoal);"></span>
                 </p>
                 <div id="qt-tests" style="font-size: 15px; margin-top: 15px; line-height: 1.8; color: #444;"></div>
             </div>
 
             <div class="qt-price-box" id="qt-price"></div>
-            
             <div class="qt-footer">
                 Amwaj Building, Shop 1-4, Al Jada, Sharjah, UAE<br>
                 This quotation is valid for 30 days. Subject to clinical indication and medical consultation.
@@ -376,267 +155,224 @@
     </div>
 
     <script>
-        const defaultPackages = [
-            {
-                id: 1, title: "1. GENERAL CHECKUP TEST", arabicTitle: "الفحص الشامل", provider: "Micro Health Laboratories",
-                price: "150 AED", cost: "100 AED", fasting: "Yes (10-12 hours). For accurate Lipid Profile.", note: "",
-                testsData: [
-                    { category: "General Chemistry", tests: "Calcium, Uric acid, Creatinine, BUN, eGFR, AST, ALT, Total protein, Albumin, Bilirubin, GGT, Alkaline phosphatase, Globulin" },
-                    { category: "Iron & Vitamins", tests: "Serum iron, TIBC, Transferrin saturation %, Vitamin D, Vitamin B12, Ferritin, Folic acid" },
-                    { category: "Electrolytes & Others", tests: "Sodium, Chloride, Potassium, LDH" },
-                    { category: "Lipid Profile", tests: "Cholesterol, HDL, LDL, VLDL, Triglycerides, Cholesterol/HDL ratio" },
-                    { category: "Blood Tests & Hormones", tests: "CBC, HbA1c, Average blood glucose, T3, T4, TSH, FSH, PSA, CRP, ESR" }
-                ]
-            },
-            {
-                id: 2, title: "2. FIRST TRIMESTER PACKAGE", arabicTitle: "باقة الثلث الأول من الحمل", provider: "Micro Health Laboratories",
-                price: "250 AED", cost: "135 AED", fasting: "No.", note: "Expectant mothers in their first trimester.",
-                testsData: [
-                    { category: "Hematology & Blood Typing", tests: "CBC, Blood Grouping & RH Factor" },
-                    { category: "Hormones", tests: "TSH (Thyroid Stimulating Hormone)" },
-                    { category: "Diabetic Screening", tests: "RBS (Random Blood Sugar)" },
-                    { category: "Infectious Diseases / Serology", tests: "HBsAg, HIV Screening, Rubella IgG, VDRL, HCV Antibody" },
-                    { category: "Clinical Pathology", tests: "Urine Routine Analysis" }
-                ]
-            },
-            {
-                id: 3, title: "3. BASIC HEALTH PACKAGE", arabicTitle: "باقة الصحة الأساسية", provider: "Thumbay Lab",
-                price: "75 AED", cost: "25 AED", fasting: "Yes (8-12 hours). Required for Fasting Blood Sugar (FBS).", note: "Affordable baseline health checkup.",
-                testsData: [
-                    { category: "Hematology & Inflammation", tests: "Complete Blood Count (CBC), C-Reactive Protein (CRP)" },
-                    { category: "Iron Studies", tests: "Iron, Total Iron Binding Capacity (TIBC)" },
-                    { category: "Diabetic Screening", tests: "Fasting Blood Sugar (FBS), Random Blood Sugar (RBS)" },
-                    { category: "Organ Function", tests: "Liver Function Profile, Renal (Kidney) Function Profile" },
-                    { category: "Lipid Profile", tests: "Lipid Profile, Cholesterol Ratios" }
-                ]
-            },
-            {
-                id: 4, title: "4. ESSENTIAL TESTS PACKAGE", arabicTitle: "باقة الفحوصات الأساسية", provider: "Thumbay Lab",
-                price: "150 AED", cost: "85 AED", fasting: "Yes (10-12 hours). Required for Lipid Profile.", note: "Includes a Free GP Consultation.",
-                testsData: [
-                    { category: "Consultation", tests: "Free GP Consultation" },
-                    { category: "Hematology", tests: "Complete Blood Count (CBC)" },
-                    { category: "Diabetic Screening", tests: "HbA1c — Blood Sugar (3 Months average)" },
-                    { category: "Vitamins & Iron Studies", tests: "Vitamin D, Iron Profile (Iron & TIBC)" },
-                    { category: "Hormones", tests: "Thyroid Function (TSH, T3, T4)" },
-                    { category: "Organ Function", tests: "Liver Profile (LFT), Kidney Profile (RFT)" },
-                    { category: "Lipid Profile", tests: "Lipid Profile (Cholesterol)" }
-                ]
-            }
-        ];
+        // Note: Because this is hosted on GitHub, to add new medical, dental, or aesthetic items across the clinic,
+        // you will need to add them directly to this defaultData object and push the updated HTML file to GitHub.
+        const defaultData = {
+            packages: [
+                { id: 1, title: "1. GENERAL CHECKUP TEST", arabicTitle: "الفحص الشامل", price: "150 AED", cost: "100 AED", fasting: "Yes (10-12 hours).", note: "Provider: Micro Health Labs", testsData: [{ category: "General Chemistry", tests: "Calcium, Uric acid, Creatinine, BUN, eGFR, AST, ALT, Total protein, Albumin, Bilirubin, GGT, Alkaline phosphatase, Globulin" }, { category: "Iron & Vitamins", tests: "Serum iron, TIBC, Transferrin saturation %, Vitamin D, Vitamin B12, Ferritin, Folic acid" }, { category: "Lipid Profile", tests: "Cholesterol, HDL, LDL, VLDL, Triglycerides" }, { category: "Blood Tests & Hormones", tests: "CBC, HbA1c, Average blood glucose, T3, T4, TSH, FSH, PSA, CRP, ESR" }] },
+                { id: 2, title: "2. BASIC HEALTH PACKAGE", arabicTitle: "باقة الصحة الأساسية", price: "75 AED", cost: "25 AED", fasting: "Yes (8-12 hours).", note: "Provider: Thumbay Lab", testsData: [{ category: "Hematology & Inflammation", tests: "CBC, C-Reactive Protein (CRP)" }, { category: "Diabetic & Organ", tests: "Fasting Blood Sugar (FBS), Liver Function, Kidney Function, Lipid Profile" }] }
+            ],
+            individual: [], // This will be auto-populated from your GitHub Excel file
+            medical: [
+                { id: 201, title: "General Practitioner Consultation", arabicTitle: "استشارة طبيب عام", price: "150 AED", cost: "0 AED", note: "Free follow-up within 7 days" }
+            ],
+            dental: [
+                { id: 301, title: "Consultation & X-Ray", arabicTitle: "استشارة وأشعة", price: "100 AED", cost: "10 AED", note: "" },
+                { id: 302, title: "Scaling & Polishing", arabicTitle: "تنظيف وتلميع الأسنان", price: "250 AED", cost: "50 AED", note: "Removes plaque and tartar" }
+            ],
+            aesthetic: [
+                { id: 401, title: "Botox (1 Area)", arabicTitle: "بوتوكس (منطقة واحدة)", price: "400 AED", cost: "150 AED", note: "Allergan brand" },
+                { id: 402, title: "Hydrafacial", arabicTitle: "هيدرا فيشل", price: "450 AED", cost: "100 AED", note: "Deep cleansing and hydration" }
+            ]
+        };
 
-        let currentPackages = [];
-        let isAdmin = false;
-        let activeQuotePkgId = null;
+        let appData = JSON.parse(JSON.stringify(defaultData));
+        let activeTab = 'packages';
+        let activeQuoteItem = null;
 
-        function loadPackages() {
-            const stored = localStorage.getItem('daniaPackages');
-            if (stored) { 
-                let parsed = JSON.parse(stored);
-                // MIGRATION FIX: Fill in undefined costs and Arabic titles from previous versions
-                currentPackages = parsed.map(pkg => {
-                    const defMatch = defaultPackages.find(d => d.title === pkg.title);
-                    return {
-                        ...pkg,
-                        cost: pkg.cost ? pkg.cost : (defMatch ? defMatch.cost : "N/A"),
-                        arabicTitle: pkg.arabicTitle ? pkg.arabicTitle : (defMatch ? defMatch.arabicTitle : "")
-                    };
+        async function loadDataAndSync() {
+            // First render what we have (defaults)
+            switchTab('packages');
+            
+            // Now attempt to pull the live Excel sheet from the GitHub repository folder
+            const syncIndicator = document.getElementById('sync-indicator');
+            try {
+                const response = await fetch('./Combined_Lab_Prices.xlsx');
+                if (!response.ok) throw new Error("File not found");
+                
+                const arrayBuffer = await response.arrayBuffer();
+                const data = new Uint8Array(arrayBuffer);
+                const workbook = XLSX.read(data, {type: 'array'});
+                
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const json = XLSX.utils.sheet_to_json(worksheet);
+                
+                let newIndividualData = [];
+                json.forEach((row, index) => {
+                    const testName = row['Test Name'] || row['Test_Name'] || row['TestName'];
+                    const costPriceRaw = row['Cost Price'] || row['Cost_Price'] || row['CostPrice'];
+                    const lab = row['Lab'] || row['Provider'] || '';
+                    
+                    if (testName && costPriceRaw !== undefined) {
+                        const costNum = parseFloat(costPriceRaw);
+                        if (!isNaN(costNum) && costNum > 0) {
+                            const sellingPrice = costNum * 2;
+                            const formatPrice = num => num % 1 !== 0 ? num.toFixed(2) : num;
+                            
+                            newIndividualData.push({
+                                id: 10000 + index, 
+                                title: String(testName).trim(),
+                                arabicTitle: '',
+                                price: formatPrice(sellingPrice) + " AED",
+                                cost: formatPrice(costNum) + " AED",
+                                note: lab ? "Provider: " + lab : ""
+                            });
+                        }
+                    }
                 });
-                savePackages(); // Resave cleaned data
-            } else { 
-                currentPackages = [...defaultPackages]; 
-                savePackages(); 
-            }
-            renderPackages();
-        }
 
-        function savePackages() { localStorage.setItem('daniaPackages', JSON.stringify(currentPackages)); }
+                if (newIndividualData.length > 0) {
+                    appData.individual = newIndividualData;
+                    syncIndicator.innerHTML = `✓ Successfully synced ${newIndividualData.length} live tests from Excel.`;
+                    syncIndicator.style.color = "var(--success-green)";
+                    if (activeTab === 'individual') renderItems();
+                } else {
+                    syncIndicator.innerHTML = "Excel file found, but no valid tests detected.";
+                }
+
+            } catch (error) {
+                console.warn("Could not load Excel file. This is normal if you haven't uploaded Combined_Lab_Prices.xlsx yet.", error);
+                syncIndicator.innerHTML = "Note: Combined_Lab_Prices.xlsx not found. Ensure it is uploaded to GitHub.";
+                syncIndicator.style.color = "#ff4c4c";
+            }
+        }
 
         function parsePrice(str) {
-            if (!str) return 0;
-            const match = str.match(/\d+/);
-            return match ? parseInt(match[0]) : 0;
+            if (str === undefined || str === null) return 0;
+            const match = String(str).match(/[\d.]+/);
+            return match ? parseFloat(match[0]) : 0;
         }
 
-        function renderPackages() {
-            const container = document.getElementById('packages-container');
+        function switchTab(tabName) {
+            activeTab = tabName;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById(`tab-${tabName}`);
+            if(activeBtn) activeBtn.classList.add('active');
+            
+            const searchInput = document.getElementById('search-input');
+            if(searchInput) searchInput.value = '';
+
+            renderItems();
+        }
+
+        function renderItems() {
+            const container = document.getElementById('items-container');
             container.innerHTML = '';
             
+            const items = appData[activeTab] || [];
             const searchTerm = document.getElementById('search-input').value.toLowerCase();
 
-            currentPackages.forEach(pkg => {
-                const searchableText = `${pkg.title} ${pkg.arabicTitle || ''} ${pkg.testsData.map(t=>t.tests).join(' ')}`.toLowerCase();
+            if (activeTab === 'packages') {
+                container.classList.remove('grid-view');
+            } else {
+                container.classList.add('grid-view');
+            }
+
+            items.forEach(item => {
+                let searchableText = `${item.title || ''} ${item.arabicTitle || ''} ${item.note || ''}`.toLowerCase();
+                if (item.testsData && Array.isArray(item.testsData)) {
+                    searchableText += ' ' + item.testsData.map(t => t.tests || '').join(' ').toLowerCase();
+                }
+                
                 if (searchTerm && !searchableText.includes(searchTerm)) return;
 
-                const sPrice = parsePrice(pkg.price);
-                const cPrice = parsePrice(pkg.cost);
-                const margin = (sPrice > 0 && cPrice > 0) ? `+${sPrice - cPrice} AED` : 'N/A';
+                const sPrice = parsePrice(item.price);
+                const cPrice = parsePrice(item.cost);
+                const marginNum = sPrice - cPrice;
+                const margin = (sPrice > 0 && cPrice > 0) ? `+${marginNum % 1 !== 0 ? marginNum.toFixed(2) : marginNum} AED` : 'N/A';
 
-                const noteHtml = pkg.note ? `<div class="meta-tag">✦ ${pkg.note}</div>` : '';
-                const arabicHtml = pkg.arabicTitle ? `<h3 class="package-arabic-title">${pkg.arabicTitle}</h3>` : '';
+                const noteHtml = item.note ? `<div class="meta-tag">✦ ${item.note}</div>` : '';
+                const fastingHtml = item.fasting ? `<div class="meta-tag fasting">⏱️ Prep: ${item.fasting}</div>` : '';
+                const arabicHtml = item.arabicTitle ? `<h3 class="package-arabic-title">${item.arabicTitle}</h3>` : '';
                 
-                const tableRows = pkg.testsData.map(row => `<tr><td style="width: 30%;"><strong>${row.category}</strong></td><td>${row.tests}</td></tr>`).join('');
-                
-                const deleteBtnHtml = isAdmin ? `<button class="delete-btn" onclick="deletePackage(${pkg.id})">Delete</button>` : '';
+                let tablesHtml = '';
+                if (activeTab === 'packages' && item.testsData && Array.isArray(item.testsData)) {
+                    const rows = item.testsData.map(row => `<tr><td style="width: 30%;"><strong>${row.category}</strong></td><td>${row.tests}</td></tr>`).join('');
+                    tablesHtml = `<table><thead><tr><th>Category</th><th>Diagnostics Included</th></tr></thead><tbody>${rows}</tbody></table>`;
+                }
 
                 const cardHtml = `
-                    <div class="package-card">
-                        <h2 class="package-title">${pkg.title}</h2>
-                        ${arabicHtml}
-                        <div class="package-meta">
-                            <div class="meta-tag" style="background-color: var(--white);">🏥 ${pkg.provider}</div>
-                            <div class="meta-tag" style="background-color: var(--blush-rose); color: var(--white); border: none;">💳 ${pkg.price}</div>
-                            <div class="meta-tag internal-data">📉 Cost: ${pkg.cost}</div>
-                            <div class="meta-tag internal-data profit">📈 Margin: ${margin}</div>
-                            <div class="meta-tag fasting">⏱️ Fasting: ${pkg.fasting}</div>
-                            ${noteHtml}
+                    <div class="card">
+                        <div>
+                            <h2 class="package-title">${item.title || 'Untitled'}</h2>
+                            ${arabicHtml}
+                            <div class="package-meta">
+                                <div class="meta-tag" style="background-color: var(--blush-rose); color: var(--white); border: none;">💳 ${item.price || '0 AED'}</div>
+                                <div class="meta-tag internal-data">📉 Cost: ${item.cost || 'N/A'}</div>
+                                <div class="meta-tag internal-data profit">📈 Margin: ${margin}</div>
+                                ${fastingHtml}
+                                ${noteHtml}
+                            </div>
+                            ${tablesHtml}
                         </div>
-                        <table><thead><tr><th>Category</th><th>Diagnostics Included</th></tr></thead><tbody>${tableRows}</tbody></table>
                         <div class="btn-group">
-                            <button class="quote-btn" onclick="openQuoteModal(${pkg.id})">Export Image Quote</button>
-                            ${deleteBtnHtml}
+                            <button class="quote-btn" onclick="openQuoteModal(${item.id})">Export Quote</button>
                         </div>
                     </div>
                 `;
                 container.innerHTML += cardHtml;
             });
-        }
 
-        function filterPackages() { renderPackages(); }
+            if (container.innerHTML === '') {
+                container.innerHTML = `<p style="text-align:center; color: #888; width: 100%; padding: 40px 0;">No items found in this category.</p>`;
+            }
+        }
 
         function togglePrivacy() {
-            const body = document.body;
+            document.body.classList.toggle('privacy-mode');
             const btn = document.getElementById('privacy-toggle');
-            body.classList.toggle('privacy-mode');
-            
-            if (body.classList.contains('privacy-mode')) {
-                btn.classList.add('active');
-                btn.innerHTML = "🔒 Patient View Active";
+            if (document.body.classList.contains('privacy-mode')) {
+                btn.classList.add('active'); btn.innerHTML = "🔒 Patient View Active";
             } else {
-                btn.classList.remove('active');
-                btn.innerHTML = "👁️ Patient View";
+                btn.classList.remove('active'); btn.innerHTML = "👁️ Patient View";
             }
         }
 
-        function openQuoteModal(id) {
-            activeQuotePkgId = id;
-            document.getElementById('patient-name-input').value = '';
-            document.getElementById('quote-modal').style.display = 'flex';
-        }
-        function closeQuoteModal() {
-            document.getElementById('quote-modal').style.display = 'none';
-            activeQuotePkgId = null;
-        }
+        function openQuoteModal(id) { activeQuoteItem = appData[activeTab].find(i => i.id === id); document.getElementById('patient-name-input').value = ''; document.getElementById('quote-modal').style.display = 'flex'; }
+        function closeQuoteModal() { document.getElementById('quote-modal').style.display = 'none'; activeQuoteItem = null; }
 
         function executeQuoteDownload() {
-            const pkg = currentPackages.find(p => p.id === activeQuotePkgId);
-            if (!pkg) return;
-
+            if (!activeQuoteItem) return;
+            const item = activeQuoteItem;
             const ptName = document.getElementById('patient-name-input').value.trim();
             const ptBox = document.getElementById('qt-patient-box');
+            if (ptName) { ptBox.style.display = 'block'; ptBox.innerHTML = `<strong>Prepared For:</strong> ${ptName}`; } else { ptBox.style.display = 'none'; }
+
+            document.getElementById('qt-title').innerText = item.title ? item.title.replace(/^\d+\.\s*/, '') : ''; 
+            document.getElementById('qt-arabic').innerText = item.arabicTitle || '';
+            document.getElementById('qt-price').innerText = `${item.price || ''}`;
             
-            if (ptName) {
-                ptBox.style.display = 'block';
-                ptBox.innerHTML = `<strong>Prepared For:</strong> ${ptName}`;
-            } else {
-                ptBox.style.display = 'none';
-            }
+            const bodyBox = document.getElementById('qt-body-box');
+            const fastingContainer = document.getElementById('qt-fasting-container');
+            const testsContainer = document.getElementById('qt-tests');
 
-            document.getElementById('qt-title').innerText = pkg.title.replace(/^\d+\.\s*/, ''); // Remove leading numbers
-            document.getElementById('qt-arabic').innerText = pkg.arabicTitle || '';
-            document.getElementById('qt-price').innerText = `${pkg.price}`;
-            document.getElementById('qt-fasting').innerText = pkg.fasting;
+            let showBody = false;
+            if (item.fasting || item.note) { fastingContainer.style.display = 'block'; document.getElementById('qt-fasting').innerText = item.fasting || item.note; showBody = true; } 
+            else { fastingContainer.style.display = 'none'; }
 
-            const testsHTML = pkg.testsData.map(row => `<strong style="color: var(--light-gold);">${row.category}:</strong> ${row.tests}`).join('<br><br>');
-            document.getElementById('qt-tests').innerHTML = testsHTML;
+            if (item.testsData && Array.isArray(item.testsData) && item.testsData.length > 0) {
+                testsContainer.style.display = 'block';
+                testsContainer.innerHTML = item.testsData.map(row => `<strong style="color: var(--light-gold);">${row.category}:</strong> ${row.tests}`).join('<br><br>');
+                showBody = true;
+            } else { testsContainer.style.display = 'none'; }
+
+            bodyBox.style.display = showBody ? 'block' : 'none';
 
             const targetNode = document.getElementById('quote-template');
             const wrapper = document.getElementById('quote-template-wrapper');
-            
-            // Bring onto screen momentarily for accurate rendering
-            wrapper.style.position = 'static';
-            wrapper.style.left = '0';
-            wrapper.style.top = '0';
+            wrapper.style.position = 'static'; wrapper.style.left = '0'; wrapper.style.top = '0';
 
-            html2canvas(targetNode, { 
-                scale: 2, 
-                backgroundColor: "#FFFFFF",
-                useCORS: true, 
-                allowTaint: true 
-            }).then(canvas => {
+            html2canvas(targetNode, { scale: 2, backgroundColor: "#FFFFFF", useCORS: true }).then(canvas => {
                 const link = document.createElement('a');
                 const safeName = ptName ? ptName.replace(/\s+/g, '_') : 'Patient';
-                link.download = `Dania_Medical_Quote_${safeName}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                
-                // Hide again
-                wrapper.style.position = 'absolute';
-                wrapper.style.left = '-9999px';
-                wrapper.style.top = '-9999px';
+                link.download = `مركز_دانيا_الطبي_${safeName}.png`;
+                link.href = canvas.toDataURL('image/png'); link.click();
+                wrapper.style.position = 'absolute'; wrapper.style.left = '-9999px'; wrapper.style.top = '-9999px';
                 closeQuoteModal();
             });
         }
 
-        function authenticate() {
-            if (isAdmin) {
-                isAdmin = false;
-                document.getElementById('admin-section').style.display = 'none';
-                document.getElementById('auth-btn').innerText = 'Admin Access';
-                renderPackages(); return;
-            }
-            if (prompt("Enter secure access code:") === "Yousif95") {
-                isAdmin = true;
-                document.getElementById('admin-section').style.display = 'block';
-                document.getElementById('auth-btn').innerText = 'Lock Admin Access';
-                if (document.body.classList.contains('privacy-mode')) togglePrivacy();
-                renderPackages();
-            } else alert("Incorrect Code.");
-        }
-
-        function addPackage() {
-            const title = document.getElementById('new-title').value;
-            const arabic = document.getElementById('new-arabic').value;
-            const rawTests = document.getElementById('new-tests').value;
-
-            if (!title) { alert("Title is required."); return; }
-
-            const testsData = rawTests.split('\n').filter(l=>l.trim()).map(line => {
-                const p = line.split('|');
-                return p.length >= 2 ? {category: p[0].trim(), tests: p[1].trim()} : {category: "General", tests: line.trim()};
-            });
-
-            currentPackages.push({
-                id: Date.now(), title: title, arabicTitle: arabic,
-                provider: document.getElementById('new-provider').value,
-                price: document.getElementById('new-price').value || '0 AED',
-                cost: document.getElementById('new-cost').value || 'N/A',
-                fasting: document.getElementById('new-fasting').value || 'N/A',
-                note: document.getElementById('new-note').value,
-                testsData: testsData
-            });
-
-            savePackages(); renderPackages();
-            alert("Package securely added.");
-            
-            // Clear fields
-            ['new-title', 'new-arabic', 'new-provider', 'new-price', 'new-cost', 'new-fasting', 'new-note', 'new-tests'].forEach(id => document.getElementById(id).value = '');
-        }
-
-        function deletePackage(id) {
-            if(confirm("Permanently delete this package?")) {
-                currentPackages = currentPackages.filter(p => p.id !== id);
-                savePackages(); renderPackages();
-            }
-        }
-
-        function resetToDefaults() {
-            if(confirm("Clear all custom additions and reset to original list?")) {
-                currentPackages = [...defaultPackages]; savePackages(); renderPackages();
-            }
-        }
-
-        window.onload = loadPackages;
+        window.onload = loadDataAndSync;
     </script>
 </body>
 </html>
