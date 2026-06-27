@@ -23,6 +23,17 @@
         body { font-family: 'Montserrat', sans-serif; background-color: var(--ivory); color: var(--charcoal); margin: 0; padding: 0; line-height: 1.6; }
         h1, h2, h3, .package-title { font-family: 'Playfair Display', serif; }
 
+        /* Login Overlay */
+        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--ivory); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .login-box { background: var(--white); padding: 50px 40px; border-radius: 12px; box-shadow: 0 15px 40px rgba(0,0,0,0.05); text-align: center; border: 1px solid var(--blush-rose); width: 100%; max-width: 350px; }
+        .login-box input { padding: 15px; width: 100%; box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px; font-family: 'Montserrat', sans-serif; outline: none; margin-bottom: 20px; font-size: 16px; text-align: center; letter-spacing: 2px;}
+        .login-box input:focus { border-color: var(--light-gold); }
+        .login-box button { background-color: var(--charcoal); color: var(--white); border: none; padding: 15px; width: 100%; font-family: 'Montserrat', sans-serif; font-weight: 600; border-radius: 30px; cursor: pointer; transition: 0.3s; font-size: 15px;}
+        .login-box button:hover { background-color: #1a2023; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1);}
+
+        /* Main App Container (Hidden initially) */
+        #main-app { display: none; padding-bottom: 100px; /* Space for floating bar */ }
+
         /* Top Sticky Control Bar */
         .top-bar { background-color: var(--charcoal); color: var(--white); padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1);}
         .search-container input { padding: 10px 20px; border-radius: 30px; border: 1px solid #555; background-color: #3f4a50; color: var(--white); width: 350px; outline: none; font-family: 'Montserrat', sans-serif; transition: all 0.3s ease; }
@@ -46,22 +57,16 @@
         /* Smart Layout Grids */
         .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
         .items-grid { display: grid; gap: 25px; }
-        
-        /* Layout for Packages (Large, readable) */
         .layout-packages { grid-template-columns: 1fr; max-width: 900px; margin: 0 auto;}
-        
-        /* Layout for Individual Tests & Services (Compact, multi-column) */
         .layout-compact { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
 
         /* Card Styles */
         .card { background-color: var(--white); border: 1px solid var(--border-light); border-radius: 12px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); position: relative; transition: transform 0.2s ease, box-shadow 0.2s ease; display: flex; flex-direction: column; justify-content: space-between; }
         .card:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(212, 175, 55, 0.1); border-color: var(--light-gold);}
-        
-        .card.hidden { display: none !important; } /* High performance search hiding */
+        .card.hidden { display: none !important; }
 
         .package-title { color: var(--charcoal); font-size: 19px; font-weight: 600; margin: 0 0 5px; line-height: 1.3; }
         .layout-packages .package-title { font-size: 24px; }
-        
         .package-arabic-title { font-size: 18px; color: var(--light-gold); margin: 0 0 15px; padding-bottom: 12px; text-align: left; direction: rtl; border-bottom: 1px solid rgba(232, 195, 200, 0.5); }
         .layout-packages .package-arabic-title { font-size: 22px; }
 
@@ -80,12 +85,15 @@
         tr:hover { background-color: #fafafa; }
 
         .btn-group { display: flex; gap: 8px; margin-top: 20px; justify-content: flex-end; border-top: 1px solid #f5f5f5; padding-top: 15px;}
-        button { font-family: 'Montserrat', sans-serif; background-color: var(--light-gold); color: var(--white); border: none; padding: 8px 16px; font-size: 11px; font-weight: 600; border-radius: 30px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px;}
+        button { font-family: 'Montserrat', sans-serif; background-color: var(--light-gold); color: var(--white); border: none; padding: 8px 16px; font-size: 12px; font-weight: 600; border-radius: 30px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px;}
         button:hover { background-color: #b8962e; transform: translateY(-1px); }
         .quote-btn { background-color: var(--charcoal); }
         .quote-btn:hover { background-color: #1a2023; }
         .delete-btn { background-color: #fff; color: #ff4c4c; border: 1px solid #ff4c4c; }
         .delete-btn:hover { background-color: #ff4c4c; color: #fff; }
+
+        /* Multi-Quote Floating Bar */
+        #quote-floating-bar { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--charcoal); color: var(--white); padding: 15px 30px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 2000; align-items: center; gap: 20px; border: 2px solid var(--light-gold);}
 
         /* Admin form */
         .admin-controls { margin-top: 60px; text-align: center; padding-top: 30px; border-top: 1px solid rgba(0,0,0,0.05); }
@@ -96,7 +104,7 @@
         .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--light-gold); outline: none;}
 
         /* Modals and Canvas */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(44, 53, 57, 0.8); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(44, 53, 57, 0.8); z-index: 3000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .modal { background: var(--white); padding: 40px; border-radius: 15px; width: 450px; text-align: center; border: 1px solid var(--light-gold); box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
         .modal h3 { font-size: 24px; margin-top: 0; color: var(--charcoal); }
         .modal input { width: 90%; padding: 12px 15px; margin: 15px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; font-family: 'Montserrat', sans-serif; outline: none; }
@@ -110,7 +118,7 @@
         .qt-title { font-family: 'Playfair Display', serif; font-size: 32px; color: var(--charcoal); margin: 0 0 10px 0; text-align: center;}
         .qt-arabic { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--light-gold); margin: 0 0 30px 0; text-align: center; direction: rtl;}
         .qt-body-box { background: var(--soft-gold); padding: 30px; border-radius: 8px; margin-bottom: 30px; }
-        .qt-price-box { font-size: 36px; font-weight: 600; color: var(--light-gold); text-align: center; margin: 30px 0; font-family: 'Playfair Display', serif;}
+        .qt-price-box { font-size: 36px; font-weight: 600; color: var(--light-gold); text-align: center; margin: 30px 0; font-family: 'Playfair Display', serif; border-top: 2px dashed var(--light-gold); padding-top: 20px;}
         .qt-footer { text-align: center; margin-top: 40px; font-size: 12px; color: #888; border-top: 1px solid #eee; padding-top: 20px; }
 
         body.privacy-mode .internal-data { display: none !important; }
@@ -119,77 +127,98 @@
 </head>
 <body>
 
-    <div class="top-bar no-print">
-        <div class="search-container">
-            <input type="text" id="search-input" onkeyup="fastSearch()" placeholder="Search current category...">
+    <div id="login-overlay">
+        <img src="https://daniamc.com/DMC_Marketing_Logo_Source_edited%20copy.png" alt="Logo" style="max-width: 300px; margin-bottom: 40px;">
+        <div class="login-box">
+            <h2 style="margin-top: 0; color: var(--charcoal);">Staff Portal Access</h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 25px;">Please enter the designated clinic password to access pricing data.</p>
+            <input type="password" id="portal-password" placeholder="Enter Password" onkeypress="handleLoginEnter(event)">
+            <button onclick="loginToPortal()">Unlock Portal</button>
+            <p id="login-error" style="color: #ff4c4c; font-size: 13px; margin-top: 15px; display: none; font-weight: 600;">Incorrect password. Please try again.</p>
         </div>
-        <button id="privacy-toggle" class="toggle-btn" onclick="togglePrivacy()">👁️ Patient View</button>
     </div>
 
-    <div class="header no-print">
-        <img src="https://daniamc.com/DMC_Marketing_Logo_Source_edited%20copy.png" alt="Dania Medical Center Logo" class="logo">
-        <p>Front Office Portal</p>
-        <div id="sync-indicator" class="sync-status">Attempting to sync latest Excel prices...</div>
-    </div>
+    <div id="main-app">
+        <div class="top-bar no-print">
+            <div class="search-container">
+                <input type="text" id="search-input" onkeyup="fastSearch()" placeholder="Search current category...">
+            </div>
+            <button id="privacy-toggle" class="toggle-btn" onclick="togglePrivacy()">👁️ Patient View</button>
+        </div>
 
-    <div class="portal-nav no-print">
-        <button class="tab-btn active" onclick="switchTab('packages')" id="tab-packages">Blood Packages</button>
-        <button class="tab-btn" onclick="switchTab('individual')" id="tab-individual">Individual Tests</button>
-        <button class="tab-btn" onclick="switchTab('medical')" id="tab-medical">Medical</button>
-        <button class="tab-btn" onclick="switchTab('dental')" id="tab-dental">Dental</button>
-        <button class="tab-btn" onclick="switchTab('aesthetic')" id="tab-aesthetic">Aesthetics</button>
-    </div>
+        <div class="header no-print">
+            <img src="https://daniamc.com/DMC_Marketing_Logo_Source_edited%20copy.png" alt="Dania Medical Center Logo" class="logo">
+            <p>Front Office Portal</p>
+            <div id="sync-indicator" class="sync-status"></div>
+        </div>
 
-    <div class="container">
-        <div id="items-container" class="items-grid"></div>
+        <div class="portal-nav no-print">
+            <button class="tab-btn active" onclick="switchTab('packages')" id="tab-packages">Blood Packages</button>
+            <button class="tab-btn" onclick="switchTab('individual')" id="tab-individual">Individual Tests</button>
+            <button class="tab-btn" onclick="switchTab('medical')" id="tab-medical">Medical</button>
+            <button class="tab-btn" onclick="switchTab('dental')" id="tab-dental">Dental</button>
+            <button class="tab-btn" onclick="switchTab('aesthetic')" id="tab-aesthetic">Aesthetics</button>
+        </div>
 
-        <div class="admin-controls">
-            <button id="auth-btn" onclick="authenticate()" style="background-color: var(--charcoal);">Admin Access</button>
-            <div id="admin-section" class="admin-form">
-                <h3 style="color: var(--charcoal); margin-top:0; border-bottom: 1px solid var(--blush-rose); padding-bottom: 15px;">Add Custom Item</h3>
-                
-                <div class="form-group">
-                    <label>Category</label>
-                    <select id="new-category" onchange="toggleAdminFields()">
-                        <option value="packages">Blood Package</option>
-                        <option value="individual">Individual Blood Test</option>
-                        <option value="medical">Medical Treatment</option>
-                        <option value="dental">Dental Treatment</option>
-                        <option value="aesthetic">Aesthetic Service</option>
-                    </select>
-                </div>
+        <div class="container">
+            <div id="items-container" class="items-grid"></div>
 
-                <div class="form-group"><label>English Title</label><input type="text" id="new-title" placeholder="e.g., Teeth Whitening"></div>
-                <div class="form-group"><label>Arabic Title</label><input type="text" id="new-arabic" placeholder="e.g., تبييض الأسنان" dir="rtl"></div>
-                
-                <div style="display: flex; gap: 15px; margin-bottom: 20px;">
-                    <div style="flex: 1;"><label>Selling Price</label><input type="text" id="new-price" placeholder="e.g., 300 AED"></div>
-                    <div style="flex: 1;"><label>Cost Price (Internal)</label><input type="text" id="new-cost" placeholder="e.g., 100 AED"></div>
-                </div>
+            <div class="admin-controls">
+                <button id="auth-btn" onclick="authenticate()" style="background-color: var(--charcoal);">Admin Editor Access</button>
+                <div id="admin-section" class="admin-form">
+                    <h3 style="color: var(--charcoal); margin-top:0; border-bottom: 1px solid var(--blush-rose); padding-bottom: 15px;">Add Custom Item</h3>
+                    
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="new-category" onchange="toggleAdminFields()">
+                            <option value="packages">Blood Package</option>
+                            <option value="individual">Individual Blood Test</option>
+                            <option value="medical">Medical Treatment</option>
+                            <option value="dental">Dental Treatment</option>
+                            <option value="aesthetic">Aesthetic Service</option>
+                        </select>
+                    </div>
 
-                <div class="form-group" id="field-fasting" style="display: none;">
-                    <label>Fasting/Prep Requirement</label>
-                    <input type="text" id="new-fasting" placeholder="e.g., Yes (10-12 hours)">
-                </div>
+                    <div class="form-group"><label>English Title</label><input type="text" id="new-title" placeholder="e.g., Teeth Whitening"></div>
+                    <div class="form-group"><label>Arabic Title</label><input type="text" id="new-arabic" placeholder="e.g., تبييض الأسنان" dir="rtl"></div>
+                    
+                    <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                        <div style="flex: 1;"><label>Selling Price</label><input type="text" id="new-price" placeholder="e.g., 300 AED"></div>
+                        <div style="flex: 1;"><label>Cost Price (Internal)</label><input type="text" id="new-cost" placeholder="e.g., 100 AED"></div>
+                    </div>
 
-                <div class="form-group"><label>Special Note</label><input type="text" id="new-note" placeholder="e.g., Consultation Included"></div>
-                
-                <div class="form-group" id="field-tests" style="display: none;">
-                    <label>Tests Included (For Packages Only: Category | Tests)</label>
-                    <textarea id="new-tests" rows="5" placeholder="General Chemistry | Calcium, Uric acid"></textarea>
-                </div>
-                
-                <div style="display: flex; gap: 10px;">
-                    <button onclick="addItem()">Save Item</button>
+                    <div class="form-group" id="field-fasting" style="display: none;">
+                        <label>Fasting/Prep Requirement</label>
+                        <input type="text" id="new-fasting" placeholder="e.g., Yes (10-12 hours)">
+                    </div>
+
+                    <div class="form-group"><label>Special Note</label><input type="text" id="new-note" placeholder="e.g., Consultation Included"></div>
+                    
+                    <div class="form-group" id="field-tests" style="display: none;">
+                        <label>Tests Included (For Packages Only: Category | Tests)</label>
+                        <textarea id="new-tests" rows="5" placeholder="General Chemistry | Calcium, Uric acid"></textarea>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="addItem()">Save Item</button>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div id="quote-floating-bar" class="no-print">
+        <span id="quote-count" style="font-weight: 600; font-size: 15px;">0 Items Selected</span>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="clearQuoteSelection()" style="background: transparent; border: 1px solid var(--white); color: var(--white); padding: 10px 20px;">Clear List</button>
+            <button onclick="openMultiQuoteModal()" style="background: var(--light-gold); padding: 10px 20px; color: white;">Generate Quote</button>
         </div>
     </div>
 
     <div id="quote-modal" class="modal-overlay">
         <div class="modal">
             <h3>Patient Quote</h3>
-            <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Enter patient details to personalize the quote.</p>
+            <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Enter patient details to personalize the combined quote.</p>
             <input type="text" id="patient-name-input" placeholder="Patient Name or Phone (Optional)">
             <div style="margin-top: 20px; display: flex; gap: 12px; justify-content: center;">
                 <button onclick="closeQuoteModal()" style="background: #f1f1f1; color: var(--charcoal);">Cancel</button>
@@ -206,10 +235,11 @@
             <h3 id="qt-arabic" class="qt-arabic"></h3>
             
             <div class="qt-body-box" id="qt-body-box">
-                <p id="qt-fasting-container" style="margin-top:0; border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 10px;">
-                    <strong>Note / Prep:</strong> <span id="qt-fasting" style="color: var(--charcoal);"></span>
+                <p id="qt-fasting-container" style="margin-top:0; border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 15px; margin-bottom: 15px;">
+                    <strong style="color: var(--charcoal); display:block; margin-bottom:5px;">Clinical Prep Notes:</strong> 
+                    <span id="qt-fasting" style="color: #555; line-height: 1.6;"></span>
                 </p>
-                <div id="qt-tests" style="font-size: 15px; margin-top: 15px; line-height: 1.8; color: #444;"></div>
+                <div id="qt-tests" style="margin-top: 15px;"></div>
             </div>
 
             <div class="qt-price-box" id="qt-price"></div>
@@ -221,7 +251,7 @@
     </div>
 
     <script>
-        // FULLY RESTORED ORIGINAL PACKAGES
+        // Data Configuration
         const defaultData = {
             packages: [
                 { id: 1, title: "1. GENERAL CHECKUP TEST", arabicTitle: "الفحص الشامل", price: "150 AED", cost: "100 AED", fasting: "Yes (10-12 hours). Fasting is required primarily for an accurate Lipid Profile.", note: "Provider: Micro Health Labs", testsData: [{ category: "General Chemistry", tests: "Calcium, Uric acid, Creatinine, Blood urea nitrogen (BUN), eGFR, AST, ALT, Total protein, Albumin, Direct bilirubin, GGT, Total bilirubin, Alkaline phosphatase, Indirect bilirubin, Serum globulin" }, { category: "Iron & Vitamins", tests: "Serum iron, Total iron binding capacity (TIBC), Transferrin saturation %, Vitamin D, Vitamin B12, Ferritin, Folic acid" }, {category: "Electrolytes & Others", tests: "Sodium, Chloride, Potassium, LDH"}, { category: "Lipid Profile", tests: "Cholesterol, HDL, LDL, VLDL, Triglycerides, Cholesterol/HDL ratio, LDL/HDL ratio" }, { category: "Blood Tests & Hormones", tests: "CBC, HbA1c, Average blood glucose, T3, T4, TSH, FSH, PSA, CRP, ESR" }] },
@@ -245,19 +275,48 @@
 
         let appData = JSON.parse(JSON.stringify(defaultData));
         let activeTab = 'packages';
-        let activeQuoteItem = null;
         let searchTimeout = null;
+        let selectedItemsForQuote = new Map();
 
+        // 1. Authentication Logic
+        window.onload = function() {
+            // Check if already authenticated in this session
+            if (sessionStorage.getItem('daniaAuthenticated') === 'true') {
+                unlockApp();
+            } else {
+                // Keep overlay visible, wait for user
+                document.getElementById('portal-password').focus();
+            }
+        }
+
+        function handleLoginEnter(event) {
+            if (event.key === 'Enter') loginToPortal();
+        }
+
+        function loginToPortal() {
+            const pwd = document.getElementById('portal-password').value;
+            if (pwd === "123@123") {
+                sessionStorage.setItem('daniaAuthenticated', 'true');
+                unlockApp();
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
+
+        function unlockApp() {
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            loadDataAndSync(); // Begin data load only after unlock
+        }
+
+        // 2. Data Logic
         async function loadDataAndSync() {
-            // Restore from local storage if custom items were added
             const portalStored = localStorage.getItem('daniaPortalData');
             if(portalStored) {
                 const stored = JSON.parse(portalStored);
-                // Merge custom additions but keep default packages intact
                 appData.medical = stored.medical || appData.medical;
                 appData.dental = stored.dental || appData.dental;
                 appData.aesthetic = stored.aesthetic || appData.aesthetic;
-                // If they added custom packages, append them to the defaults
                 if (stored.packages && stored.packages.length > 4) {
                     const customPkgs = stored.packages.filter(p => !defaultData.packages.find(dp => dp.id === p.id));
                     appData.packages = [...defaultData.packages, ...customPkgs];
@@ -266,8 +325,9 @@
 
             switchTab('packages');
             
-            // Sync Excel File
             const syncIndicator = document.getElementById('sync-indicator');
+            syncIndicator.innerHTML = "Attempting to sync latest Excel prices...";
+            
             try {
                 const response = await fetch('./Combined_Lab_Prices.xlsx');
                 if (!response.ok) throw new Error("File not found");
@@ -300,16 +360,15 @@
 
                 if (newIndividualData.length > 0) {
                     appData.individual = newIndividualData;
-                    syncIndicator.innerHTML = `✓ Successfully synced ${newIndividualData.length} live tests from Excel.`;
+                    syncIndicator.innerHTML = `✓ Successfully synced ${newIndividualData.length} live tests from GitHub.`;
                     syncIndicator.style.color = "var(--success-green)";
-                    if (activeTab === 'individual') renderItems(); // Re-render if they clicked the tab quickly
+                    if (activeTab === 'individual') renderItems();
                 } else {
                     syncIndicator.innerHTML = "Excel file found, but no valid tests detected.";
                 }
-
             } catch (error) {
-                console.warn("Excel file not found yet.");
-                syncIndicator.innerHTML = "Note: Combined_Lab_Prices.xlsx not found. Ensure it is uploaded to GitHub.";
+                console.warn("Excel file not found on GitHub yet.");
+                syncIndicator.innerHTML = "Note: Combined_Lab_Prices.xlsx not found on server.";
                 syncIndicator.style.color = "#ff4c4c";
             }
         }
@@ -324,30 +383,24 @@
             activeTab = tabName;
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`tab-${tabName}`).classList.add('active');
-            
             document.getElementById('search-input').value = '';
             
-            // Adjust layout classes
             const container = document.getElementById('items-container');
             if (activeTab === 'packages') {
                 container.className = 'items-grid layout-packages';
             } else {
                 container.className = 'items-grid layout-compact';
             }
-
-            renderItems(); // Build DOM once
+            renderItems();
         }
 
-        // DOM Builder - Only runs on Tab Switch or Delete/Add. Not on Search.
         function renderItems() {
             const container = document.getElementById('items-container');
             container.innerHTML = '';
             const items = appData[activeTab] || [];
-
             let htmlString = "";
 
             items.forEach(item => {
-                // Build search index string
                 let searchIndex = `${item.title || ''} ${item.arabicTitle || ''} ${item.note || ''}`.toLowerCase();
                 if (item.testsData && Array.isArray(item.testsData)) {
                     searchIndex += ' ' + item.testsData.map(t => t.tests || '').join(' ').toLowerCase();
@@ -368,6 +421,11 @@
                     tablesHtml = `<table><thead><tr><th>Category</th><th>Diagnostics Included</th></tr></thead><tbody>${rows}</tbody></table>`;
                 }
 
+                // Check button state
+                const isSelected = selectedItemsForQuote.has(item.id);
+                const btnStyle = isSelected ? `background-color: var(--success-green); color: #155724; border: 1px solid #155724;` : ``;
+                const btnText = isSelected ? `✓ Added to Quote` : `➕ Add to Quote`;
+
                 htmlString += `
                     <div class="card" data-search="${searchIndex}">
                         <div>
@@ -383,7 +441,7 @@
                             ${tablesHtml}
                         </div>
                         <div class="btn-group">
-                            <button class="quote-btn" onclick="openQuoteModal(${item.id})">Export Quote</button>
+                            <button class="quote-btn" style="${btnStyle}" onclick="toggleQuoteItem(${item.id})">${btnText}</button>
                         </div>
                     </div>
                 `;
@@ -392,64 +450,119 @@
             container.innerHTML = htmlString || `<p style="text-align:center; color: #888; width: 100%; grid-column: 1 / -1; padding: 40px 0;">No items found in this category.</p>`;
         }
 
-        // HIGH PERFORMANCE SEARCH: Just toggles CSS display classes
         function fastSearch() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 const searchTerm = document.getElementById('search-input').value.toLowerCase();
                 const cards = document.querySelectorAll('#items-container .card');
-                
                 cards.forEach(card => {
                     const searchData = card.getAttribute('data-search');
-                    if (searchData.includes(searchTerm)) {
-                        card.classList.remove('hidden');
-                    } else {
-                        card.classList.add('hidden');
-                    }
+                    if (searchData.includes(searchTerm)) card.classList.remove('hidden');
+                    else card.classList.add('hidden');
                 });
-            }, 100); // 100ms debounce
+            }, 100);
         }
 
-        function togglePrivacy() {
-            document.body.classList.toggle('privacy-mode');
-            const btn = document.getElementById('privacy-toggle');
-            if (document.body.classList.contains('privacy-mode')) {
-                btn.classList.add('active'); btn.innerHTML = "🔒 Patient View Active";
+        // 3. Multi-Quote Engine
+        function toggleQuoteItem(id) {
+            // Find item globally across all tabs
+            let foundItem = null;
+            for (let category in appData) {
+                const match = appData[category].find(i => i.id === id);
+                if (match) { foundItem = match; break; }
+            }
+            if (!foundItem) return;
+
+            if (selectedItemsForQuote.has(id)) {
+                selectedItemsForQuote.delete(id);
             } else {
-                btn.classList.remove('active'); btn.innerHTML = "👁️ Patient View";
+                selectedItemsForQuote.set(id, foundItem);
+            }
+            
+            updateFloatingBar();
+            renderItems(); // Refresh buttons
+        }
+
+        function clearQuoteSelection() {
+            selectedItemsForQuote.clear();
+            updateFloatingBar();
+            renderItems();
+        }
+
+        function updateFloatingBar() {
+            const bar = document.getElementById('quote-floating-bar');
+            if (selectedItemsForQuote.size > 0) {
+                bar.style.display = 'flex';
+                document.getElementById('quote-count').innerText = `${selectedItemsForQuote.size} Item(s) Selected`;
+            } else {
+                bar.style.display = 'none';
             }
         }
 
-        function openQuoteModal(id) { activeQuoteItem = appData[activeTab].find(i => i.id === id); document.getElementById('patient-name-input').value = ''; document.getElementById('quote-modal').style.display = 'flex'; }
-        function closeQuoteModal() { document.getElementById('quote-modal').style.display = 'none'; activeQuoteItem = null; }
+        function openMultiQuoteModal() {
+            document.getElementById('patient-name-input').value = '';
+            document.getElementById('quote-modal').style.display = 'flex';
+        }
+        function closeQuoteModal() { 
+            document.getElementById('quote-modal').style.display = 'none'; 
+        }
 
         function executeQuoteDownload() {
-            if (!activeQuoteItem) return;
-            const item = activeQuoteItem;
+            if (selectedItemsForQuote.size === 0) return;
+            
             const ptName = document.getElementById('patient-name-input').value.trim();
             const ptBox = document.getElementById('qt-patient-box');
             if (ptName) { ptBox.style.display = 'block'; ptBox.innerHTML = `<strong>Prepared For:</strong> ${ptName}`; } else { ptBox.style.display = 'none'; }
 
-            document.getElementById('qt-title').innerText = item.title ? item.title.replace(/^\d+\.\s*/, '') : ''; 
-            document.getElementById('qt-arabic').innerText = item.arabicTitle || '';
-            document.getElementById('qt-price').innerText = `${item.price || ''}`;
+            document.getElementById('qt-title').innerText = "Personalized Treatment Plan"; 
+            document.getElementById('qt-arabic').innerText = "خطة العلاج المخصصة";
             
-            const bodyBox = document.getElementById('qt-body-box');
+            let totalPrice = 0;
+            let combinedHTML = "";
+            let combinedFasting = [];
+
+            // Loop through all selected cart items
+            selectedItemsForQuote.forEach((item) => {
+                totalPrice += parsePrice(item.price);
+                
+                const cleanTitle = item.title.replace(/^\d+\.\s*/, '');
+                
+                combinedHTML += `
+                    <div style="border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 20px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 22px; font-weight: 600; color: var(--charcoal); font-family: 'Playfair Display', serif;">${cleanTitle}</div>
+                                ${item.arabicTitle ? `<div style="color: var(--light-gold); font-size: 18px; direction: rtl;">${item.arabicTitle}</div>` : ''}
+                            </div>
+                            <div style="font-size: 20px; font-weight: bold; color: var(--charcoal);">${item.price}</div>
+                        </div>
+                `;
+
+                if (item.fasting || item.note) {
+                    combinedFasting.push(`<strong>${cleanTitle}:</strong> ${item.fasting || item.note}`);
+                }
+
+                if (item.testsData && Array.isArray(item.testsData) && item.testsData.length > 0) {
+                    const testsList = item.testsData.map(row => `<span style="color: var(--charcoal); font-weight: 600;">${row.category}:</span> <span style="color: #666;">${row.tests}</span>`).join('<br>');
+                    combinedHTML += `<div style="font-size: 13px; margin-top: 15px; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #eee; line-height: 1.6;">${testsList}</div>`;
+                }
+                
+                combinedHTML += `</div>`;
+            });
+
+            document.getElementById('qt-tests').innerHTML = combinedHTML;
+
             const fastingContainer = document.getElementById('qt-fasting-container');
-            const testsContainer = document.getElementById('qt-tests');
+            if (combinedFasting.length > 0) {
+                fastingContainer.style.display = 'block';
+                document.getElementById('qt-fasting').innerHTML = combinedFasting.join('<br>');
+            } else {
+                fastingContainer.style.display = 'none';
+            }
 
-            let showBody = false;
-            if (item.fasting || item.note) { fastingContainer.style.display = 'block'; document.getElementById('qt-fasting').innerText = item.fasting || item.note; showBody = true; } 
-            else { fastingContainer.style.display = 'none'; }
+            document.getElementById('qt-price').innerText = `Total: ${totalPrice} AED`;
 
-            if (item.testsData && Array.isArray(item.testsData) && item.testsData.length > 0) {
-                testsContainer.style.display = 'block';
-                testsContainer.innerHTML = item.testsData.map(row => `<strong style="color: var(--light-gold);">${row.category}:</strong> ${row.tests}`).join('<br><br>');
-                showBody = true;
-            } else { testsContainer.style.display = 'none'; }
-
-            bodyBox.style.display = showBody ? 'block' : 'none';
-
+            // Process image download
             const targetNode = document.getElementById('quote-template');
             const wrapper = document.getElementById('quote-template-wrapper');
             wrapper.style.position = 'static'; wrapper.style.left = '0'; wrapper.style.top = '0';
@@ -461,10 +574,22 @@
                 link.href = canvas.toDataURL('image/png'); link.click();
                 wrapper.style.position = 'absolute'; wrapper.style.left = '-9999px'; wrapper.style.top = '-9999px';
                 closeQuoteModal();
+                // Optionally clear cart after download
+                clearQuoteSelection();
             });
         }
 
-        // Admin functions
+        // 4. Privacy & Admin Utils
+        function togglePrivacy() {
+            document.body.classList.toggle('privacy-mode');
+            const btn = document.getElementById('privacy-toggle');
+            if (document.body.classList.contains('privacy-mode')) {
+                btn.classList.add('active'); btn.innerHTML = "🔒 Patient View Active";
+            } else {
+                btn.classList.remove('active'); btn.innerHTML = "👁️ Patient View";
+            }
+        }
+
         function toggleAdminFields() {
             const cat = document.getElementById('new-category').value;
             document.getElementById('field-tests').style.display = cat === 'packages' ? 'block' : 'none';
@@ -477,13 +602,13 @@
             
             if (adminSection.style.display === 'block') {
                 adminSection.style.display = 'none';
-                authBtn.innerText = 'Admin Access';
+                authBtn.innerText = 'Admin Editor Access';
             } else {
-                if (prompt("Enter secure access code:") === "Yousif95") {
+                if (prompt("Enter secure edit code:") === "Yousif95") {
                     adminSection.style.display = 'block';
-                    authBtn.innerText = 'Lock Admin Access';
+                    authBtn.innerText = 'Lock Admin Editor';
                 } else {
-                    alert("Incorrect Code.");
+                    alert("Incorrect Edit Code.");
                 }
             }
         }
@@ -515,8 +640,6 @@
             
             ['new-title', 'new-arabic', 'new-price', 'new-cost', 'new-fasting', 'new-note', 'new-tests'].forEach(id => document.getElementById(id).value = '');
         }
-
-        window.onload = loadDataAndSync;
     </script>
 </body>
 </html>
