@@ -17,66 +17,89 @@
             --charcoal: #2C3539;
             --white: #FFFFFF;
             --success-green: #e6f4ea;
+            --border-light: rgba(212, 175, 55, 0.2);
         }
 
-        body { font-family: 'Montserrat', sans-serif; background-color: var(--ivory); color: var(--charcoal); margin: 0; padding: 0; line-height: 1.6; transition: background-color 0.3s; }
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--ivory); color: var(--charcoal); margin: 0; padding: 0; line-height: 1.6; }
         h1, h2, h3, .package-title { font-family: 'Playfair Display', serif; }
 
-        /* Top Control Bar */
-        .top-bar { background-color: var(--charcoal); color: var(--white); padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; }
+        /* Top Sticky Control Bar */
+        .top-bar { background-color: var(--charcoal); color: var(--white); padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1);}
         .search-container input { padding: 10px 20px; border-radius: 30px; border: 1px solid #555; background-color: #3f4a50; color: var(--white); width: 350px; outline: none; font-family: 'Montserrat', sans-serif; transition: all 0.3s ease; }
-        .search-container input:focus { background-color: var(--white); color: var(--charcoal); }
+        .search-container input:focus { background-color: var(--white); color: var(--charcoal); box-shadow: 0 0 10px rgba(255,255,255,0.2);}
         .toggle-btn { background-color: transparent; color: var(--white); border: 1px solid var(--white); padding: 8px 20px; border-radius: 30px; cursor: pointer; font-weight: 500; transition: all 0.3s ease; font-family: 'Montserrat', sans-serif; }
         .toggle-btn:hover { background-color: rgba(255,255,255,0.1); }
         .toggle-btn.active { background-color: var(--success-green); border-color: var(--success-green); color: #155724; }
 
+        /* Header Area */
+        .header { background-color: var(--white); text-align: center; padding: 30px 20px 20px; border-bottom: 1px solid var(--blush-rose); }
+        .logo { max-width: 220px; height: auto; margin-bottom: 10px; }
+        .header p { margin: 5px 0 0; color: var(--light-gold); font-weight: 500; letter-spacing: 2px; text-transform: uppercase; font-size: 13px; }
+        .sync-status { text-align: center; font-size: 12px; color: var(--light-gold); margin-top: 10px; font-weight: 600;}
+
         /* Portal Navigation Tabs */
-        .portal-nav { background-color: var(--white); display: flex; justify-content: center; border-bottom: 2px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 100; }
+        .portal-nav { background-color: var(--white); display: flex; justify-content: center; border-bottom: 2px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .tab-btn { background: none; border: none; color: var(--charcoal); padding: 18px 25px; font-size: 14px; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-bottom: 3px solid transparent; transition: all 0.3s; font-family: 'Montserrat', sans-serif; }
         .tab-btn:hover { color: var(--light-gold); background-color: var(--soft-blush); }
         .tab-btn.active { border-bottom-color: var(--light-gold); color: var(--light-gold); background-color: var(--soft-gold); }
 
-        .header { background-color: var(--white); text-align: center; padding: 40px 20px 20px; border-bottom: 1px solid var(--blush-rose); }
-        .logo { max-width: 250px; height: auto; margin-bottom: 15px; }
-        .header p { margin: 5px 0 0; color: var(--light-gold); font-weight: 500; letter-spacing: 2px; text-transform: uppercase; font-size: 14px; }
+        /* Smart Layout Grids */
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .items-grid { display: grid; gap: 25px; }
+        
+        /* Layout for Packages (Large, readable) */
+        .layout-packages { grid-template-columns: 1fr; max-width: 900px; margin: 0 auto;}
+        
+        /* Layout for Individual Tests & Services (Compact, multi-column) */
+        .layout-compact { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
 
-        .container { max-width: 1050px; margin: 40px auto; padding: 0 20px; }
-        .items-grid { display: grid; gap: 25px; grid-template-columns: 1fr; }
-        .items-grid.grid-view { grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); }
+        /* Card Styles */
+        .card { background-color: var(--white); border: 1px solid var(--border-light); border-radius: 12px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); position: relative; transition: transform 0.2s ease, box-shadow 0.2s ease; display: flex; flex-direction: column; justify-content: space-between; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(212, 175, 55, 0.1); border-color: var(--light-gold);}
+        
+        .card.hidden { display: none !important; } /* High performance search hiding */
 
-        .card { background-color: var(--white); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); position: relative; transition: transform 0.3s ease, box-shadow 0.3s ease; display: flex; flex-direction: column; justify-content: space-between; }
-        .card:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(212, 175, 55, 0.08); }
+        .package-title { color: var(--charcoal); font-size: 19px; font-weight: 600; margin: 0 0 5px; line-height: 1.3; }
+        .layout-packages .package-title { font-size: 24px; }
+        
+        .package-arabic-title { font-size: 18px; color: var(--light-gold); margin: 0 0 15px; padding-bottom: 12px; text-align: left; direction: rtl; border-bottom: 1px solid rgba(232, 195, 200, 0.5); }
+        .layout-packages .package-arabic-title { font-size: 22px; }
 
-        .package-title { color: var(--charcoal); font-size: 20px; font-weight: 600; margin: 0 0 5px; line-height: 1.3; }
-        .package-arabic-title { font-size: 20px; color: var(--light-gold); margin: 0 0 15px; padding-bottom: 15px; text-align: left; direction: rtl; border-bottom: 1px solid rgba(232, 195, 200, 0.5); }
-
-        .package-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; font-size: 13px; }
-        .meta-tag { background-color: var(--soft-gold); padding: 6px 14px; border-radius: 30px; font-weight: 600; color: var(--charcoal); border: 1px solid rgba(212, 175, 55, 0.3); }
+        .package-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; font-size: 12px; }
+        .meta-tag { background-color: var(--soft-gold); padding: 5px 12px; border-radius: 20px; font-weight: 600; color: var(--charcoal); border: 1px solid rgba(212, 175, 55, 0.3); }
         .internal-data { background-color: #f1f5f9; border: 1px dashed #cbd5e1; color: #475569; }
         .meta-tag.fasting { background-color: var(--soft-blush); border-color: var(--blush-rose); color: #9A6A71; }
         .meta-tag.profit { background-color: #f0fdf4; color: #166534; border: 1px dashed #86efac; }
 
+        /* Tables for packages */
         table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 15px; border: 1px solid #f0f0f0; border-radius: 8px; overflow: hidden; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #f0f0f0; font-size: 14px;}
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #f0f0f0; font-size: 13px;}
         td:first-child { border-right: 1px solid #f0f0f0; }
         tr:last-child td { border-bottom: none; }
-        th { background-color: var(--soft-blush); color: var(--charcoal); font-weight: 600; font-family: 'Playfair Display', serif; font-size: 16px; }
+        th { background-color: var(--soft-blush); color: var(--charcoal); font-weight: 600; font-family: 'Playfair Display', serif; font-size: 15px; }
         tr:hover { background-color: #fafafa; }
 
-        .btn-group { display: flex; gap: 10px; margin-top: 25px; justify-content: flex-end; }
-        button { font-family: 'Montserrat', sans-serif; background-color: var(--light-gold); color: var(--white); border: none; padding: 10px 20px; font-size: 12px; font-weight: 600; border-radius: 30px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px;}
-        button:hover { background-color: #b8962e; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3); }
+        .btn-group { display: flex; gap: 8px; margin-top: 20px; justify-content: flex-end; border-top: 1px solid #f5f5f5; padding-top: 15px;}
+        button { font-family: 'Montserrat', sans-serif; background-color: var(--light-gold); color: var(--white); border: none; padding: 8px 16px; font-size: 11px; font-weight: 600; border-radius: 30px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px;}
+        button:hover { background-color: #b8962e; transform: translateY(-1px); }
         .quote-btn { background-color: var(--charcoal); }
         .quote-btn:hover { background-color: #1a2023; }
+        .delete-btn { background-color: #fff; color: #ff4c4c; border: 1px solid #ff4c4c; }
+        .delete-btn:hover { background-color: #ff4c4c; color: #fff; }
 
-        /* Sync Status Indicator */
-        .sync-status { text-align: center; font-size: 13px; color: var(--light-gold); margin-top: 10px; font-weight: 600;}
+        /* Admin form */
+        .admin-controls { margin-top: 60px; text-align: center; padding-top: 30px; border-top: 1px solid rgba(0,0,0,0.05); }
+        .admin-form { display: none; background: var(--white); padding: 35px; border-radius: 12px; border: 1px solid var(--blush-rose); margin-top: 30px; text-align: left; box-shadow: 0 10px 30px rgba(232, 195, 200, 0.15); max-width: 800px; margin-left: auto; margin-right: auto;}
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 13px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: 'Montserrat', sans-serif; transition: border-color 0.3s; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--light-gold); outline: none;}
 
         /* Modals and Canvas */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(44, 53, 57, 0.8); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal { background: var(--white); padding: 40px; border-radius: 15px; width: 450px; text-align: center; border: 1px solid var(--light-gold); box-shadow: 0 20px 50px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;}
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(44, 53, 57, 0.8); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal { background: var(--white); padding: 40px; border-radius: 15px; width: 450px; text-align: center; border: 1px solid var(--light-gold); box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
         .modal h3 { font-size: 24px; margin-top: 0; color: var(--charcoal); }
-        .modal input, .modal select { width: 90%; padding: 12px 15px; margin: 15px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; font-family: 'Montserrat', sans-serif; outline: none; transition: border-color 0.3s; }
+        .modal input { width: 90%; padding: 12px 15px; margin: 15px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; font-family: 'Montserrat', sans-serif; outline: none; }
         
         #quote-template-wrapper { position: absolute; left: -9999px; top: -9999px; }
         #quote-template { width: 850px; padding: 60px; background-color: var(--white); color: var(--charcoal); box-sizing: border-box; font-family: 'Montserrat', sans-serif; position: relative; }
@@ -91,13 +114,14 @@
         .qt-footer { text-align: center; margin-top: 40px; font-size: 12px; color: #888; border-top: 1px solid #eee; padding-top: 20px; }
 
         body.privacy-mode .internal-data { display: none !important; }
+        body.privacy-mode .admin-controls { display: none !important; }
     </style>
 </head>
 <body>
 
     <div class="top-bar no-print">
         <div class="search-container">
-            <input type="text" id="search-input" onkeyup="renderItems()" placeholder="Search current category...">
+            <input type="text" id="search-input" onkeyup="fastSearch()" placeholder="Search current category...">
         </div>
         <button id="privacy-toggle" class="toggle-btn" onclick="togglePrivacy()">👁️ Patient View</button>
     </div>
@@ -118,6 +142,48 @@
 
     <div class="container">
         <div id="items-container" class="items-grid"></div>
+
+        <div class="admin-controls">
+            <button id="auth-btn" onclick="authenticate()" style="background-color: var(--charcoal);">Admin Access</button>
+            <div id="admin-section" class="admin-form">
+                <h3 style="color: var(--charcoal); margin-top:0; border-bottom: 1px solid var(--blush-rose); padding-bottom: 15px;">Add Custom Item</h3>
+                
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="new-category" onchange="toggleAdminFields()">
+                        <option value="packages">Blood Package</option>
+                        <option value="individual">Individual Blood Test</option>
+                        <option value="medical">Medical Treatment</option>
+                        <option value="dental">Dental Treatment</option>
+                        <option value="aesthetic">Aesthetic Service</option>
+                    </select>
+                </div>
+
+                <div class="form-group"><label>English Title</label><input type="text" id="new-title" placeholder="e.g., Teeth Whitening"></div>
+                <div class="form-group"><label>Arabic Title</label><input type="text" id="new-arabic" placeholder="e.g., تبييض الأسنان" dir="rtl"></div>
+                
+                <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                    <div style="flex: 1;"><label>Selling Price</label><input type="text" id="new-price" placeholder="e.g., 300 AED"></div>
+                    <div style="flex: 1;"><label>Cost Price (Internal)</label><input type="text" id="new-cost" placeholder="e.g., 100 AED"></div>
+                </div>
+
+                <div class="form-group" id="field-fasting" style="display: none;">
+                    <label>Fasting/Prep Requirement</label>
+                    <input type="text" id="new-fasting" placeholder="e.g., Yes (10-12 hours)">
+                </div>
+
+                <div class="form-group"><label>Special Note</label><input type="text" id="new-note" placeholder="e.g., Consultation Included"></div>
+                
+                <div class="form-group" id="field-tests" style="display: none;">
+                    <label>Tests Included (For Packages Only: Category | Tests)</label>
+                    <textarea id="new-tests" rows="5" placeholder="General Chemistry | Calcium, Uric acid"></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="addItem()">Save Item</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="quote-modal" class="modal-overlay">
@@ -155,14 +221,15 @@
     </div>
 
     <script>
-        // Note: Because this is hosted on GitHub, to add new medical, dental, or aesthetic items across the clinic,
-        // you will need to add them directly to this defaultData object and push the updated HTML file to GitHub.
+        // FULLY RESTORED ORIGINAL PACKAGES
         const defaultData = {
             packages: [
-                { id: 1, title: "1. GENERAL CHECKUP TEST", arabicTitle: "الفحص الشامل", price: "150 AED", cost: "100 AED", fasting: "Yes (10-12 hours).", note: "Provider: Micro Health Labs", testsData: [{ category: "General Chemistry", tests: "Calcium, Uric acid, Creatinine, BUN, eGFR, AST, ALT, Total protein, Albumin, Bilirubin, GGT, Alkaline phosphatase, Globulin" }, { category: "Iron & Vitamins", tests: "Serum iron, TIBC, Transferrin saturation %, Vitamin D, Vitamin B12, Ferritin, Folic acid" }, { category: "Lipid Profile", tests: "Cholesterol, HDL, LDL, VLDL, Triglycerides" }, { category: "Blood Tests & Hormones", tests: "CBC, HbA1c, Average blood glucose, T3, T4, TSH, FSH, PSA, CRP, ESR" }] },
-                { id: 2, title: "2. BASIC HEALTH PACKAGE", arabicTitle: "باقة الصحة الأساسية", price: "75 AED", cost: "25 AED", fasting: "Yes (8-12 hours).", note: "Provider: Thumbay Lab", testsData: [{ category: "Hematology & Inflammation", tests: "CBC, C-Reactive Protein (CRP)" }, { category: "Diabetic & Organ", tests: "Fasting Blood Sugar (FBS), Liver Function, Kidney Function, Lipid Profile" }] }
+                { id: 1, title: "1. GENERAL CHECKUP TEST", arabicTitle: "الفحص الشامل", price: "150 AED", cost: "100 AED", fasting: "Yes (10-12 hours). Fasting is required primarily for an accurate Lipid Profile.", note: "Provider: Micro Health Labs", testsData: [{ category: "General Chemistry", tests: "Calcium, Uric acid, Creatinine, Blood urea nitrogen (BUN), eGFR, AST, ALT, Total protein, Albumin, Direct bilirubin, GGT, Total bilirubin, Alkaline phosphatase, Indirect bilirubin, Serum globulin" }, { category: "Iron & Vitamins", tests: "Serum iron, Total iron binding capacity (TIBC), Transferrin saturation %, Vitamin D, Vitamin B12, Ferritin, Folic acid" }, {category: "Electrolytes & Others", tests: "Sodium, Chloride, Potassium, LDH"}, { category: "Lipid Profile", tests: "Cholesterol, HDL, LDL, VLDL, Triglycerides, Cholesterol/HDL ratio, LDL/HDL ratio" }, { category: "Blood Tests & Hormones", tests: "CBC, HbA1c, Average blood glucose, T3, T4, TSH, FSH, PSA, CRP, ESR" }] },
+                { id: 2, title: "2. FIRST TRIMESTER PACKAGE", arabicTitle: "باقة الثلث الأول من الحمل", price: "250 AED", cost: "135 AED", fasting: "No. Includes Random Blood Sugar (RBS).", note: "Provider: Micro Health Labs", testsData: [{ category: "Hematology & Blood Typing", tests: "CBC, Blood Grouping & RH Factor" }, { category: "Hormones", tests: "TSH (Thyroid Stimulating Hormone)" }, {category: "Diabetic Screening", tests: "RBS (Random Blood Sugar)"}, { category: "Infectious Diseases / Serology", tests: "HBsAg, HIV Screening, Rubella IgG, VDRL, HCV Antibody" }, { category: "Clinical Pathology", tests: "Urine Routine Analysis" }] },
+                { id: 3, title: "3. BASIC HEALTH PACKAGE", arabicTitle: "باقة الصحة الأساسية", price: "75 AED", cost: "25 AED", fasting: "Yes (8-12 hours). Required for Fasting Blood Sugar (FBS).", note: "Provider: Thumbay Lab", testsData: [{ category: "Hematology & Inflammation", tests: "Complete Blood Count (CBC), C-Reactive Protein (CRP)" }, {category: "Iron Studies", tests: "Iron, Total Iron Binding Capacity (TIBC)"}, {category: "Diabetic Screening", tests: "Fasting Blood Sugar (FBS), Random Blood Sugar (RBS)"}, { category: "Organ Function", tests: "Liver Function Profile, Renal (Kidney) Function Profile"}, {category: "Lipid Profile", tests: "Lipid Profile, Cholesterol Ratios"}] },
+                { id: 4, title: "4. ESSENTIAL TESTS PACKAGE", arabicTitle: "باقة الفحوصات الأساسية", price: "150 AED", cost: "85 AED", fasting: "Yes (10-12 hours). Required for Lipid Profile.", note: "Includes a Free GP Consultation. Provider: Thumbay Lab", testsData: [{category: "Consultation", tests: "Free GP Consultation"}, { category: "Hematology", tests: "Complete Blood Count (CBC)" }, {category: "Diabetic Screening", tests: "HbA1c — Blood Sugar (3 Months average)"}, { category: "Vitamins & Iron", tests: "Vitamin D, Iron Profile (Iron & TIBC)"}, {category: "Hormones", tests: "Thyroid Function (TSH, T3, T4)"}, {category: "Organ Function", tests: "Liver Profile (LFT), Kidney Profile (RFT)"}, {category: "Lipid Profile", tests: "Lipid Profile (Cholesterol)"}] }
             ],
-            individual: [], // This will be auto-populated from your GitHub Excel file
+            individual: [],
             medical: [
                 { id: 201, title: "General Practitioner Consultation", arabicTitle: "استشارة طبيب عام", price: "150 AED", cost: "0 AED", note: "Free follow-up within 7 days" }
             ],
@@ -179,23 +246,35 @@
         let appData = JSON.parse(JSON.stringify(defaultData));
         let activeTab = 'packages';
         let activeQuoteItem = null;
+        let searchTimeout = null;
 
         async function loadDataAndSync() {
-            // First render what we have (defaults)
+            // Restore from local storage if custom items were added
+            const portalStored = localStorage.getItem('daniaPortalData');
+            if(portalStored) {
+                const stored = JSON.parse(portalStored);
+                // Merge custom additions but keep default packages intact
+                appData.medical = stored.medical || appData.medical;
+                appData.dental = stored.dental || appData.dental;
+                appData.aesthetic = stored.aesthetic || appData.aesthetic;
+                // If they added custom packages, append them to the defaults
+                if (stored.packages && stored.packages.length > 4) {
+                    const customPkgs = stored.packages.filter(p => !defaultData.packages.find(dp => dp.id === p.id));
+                    appData.packages = [...defaultData.packages, ...customPkgs];
+                }
+            }
+
             switchTab('packages');
             
-            // Now attempt to pull the live Excel sheet from the GitHub repository folder
+            // Sync Excel File
             const syncIndicator = document.getElementById('sync-indicator');
             try {
                 const response = await fetch('./Combined_Lab_Prices.xlsx');
                 if (!response.ok) throw new Error("File not found");
                 
                 const arrayBuffer = await response.arrayBuffer();
-                const data = new Uint8Array(arrayBuffer);
-                const workbook = XLSX.read(data, {type: 'array'});
-                
-                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                const json = XLSX.utils.sheet_to_json(worksheet);
+                const workbook = XLSX.read(new Uint8Array(arrayBuffer), {type: 'array'});
+                const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
                 
                 let newIndividualData = [];
                 json.forEach((row, index) => {
@@ -206,14 +285,12 @@
                     if (testName && costPriceRaw !== undefined) {
                         const costNum = parseFloat(costPriceRaw);
                         if (!isNaN(costNum) && costNum > 0) {
-                            const sellingPrice = costNum * 2;
                             const formatPrice = num => num % 1 !== 0 ? num.toFixed(2) : num;
-                            
                             newIndividualData.push({
                                 id: 10000 + index, 
                                 title: String(testName).trim(),
                                 arabicTitle: '',
-                                price: formatPrice(sellingPrice) + " AED",
+                                price: formatPrice(costNum * 2) + " AED",
                                 cost: formatPrice(costNum) + " AED",
                                 note: lab ? "Provider: " + lab : ""
                             });
@@ -225,20 +302,20 @@
                     appData.individual = newIndividualData;
                     syncIndicator.innerHTML = `✓ Successfully synced ${newIndividualData.length} live tests from Excel.`;
                     syncIndicator.style.color = "var(--success-green)";
-                    if (activeTab === 'individual') renderItems();
+                    if (activeTab === 'individual') renderItems(); // Re-render if they clicked the tab quickly
                 } else {
                     syncIndicator.innerHTML = "Excel file found, but no valid tests detected.";
                 }
 
             } catch (error) {
-                console.warn("Could not load Excel file. This is normal if you haven't uploaded Combined_Lab_Prices.xlsx yet.", error);
+                console.warn("Excel file not found yet.");
                 syncIndicator.innerHTML = "Note: Combined_Lab_Prices.xlsx not found. Ensure it is uploaded to GitHub.";
                 syncIndicator.style.color = "#ff4c4c";
             }
         }
 
         function parsePrice(str) {
-            if (str === undefined || str === null) return 0;
+            if (!str) return 0;
             const match = String(str).match(/[\d.]+/);
             return match ? parseFloat(match[0]) : 0;
         }
@@ -246,35 +323,35 @@
         function switchTab(tabName) {
             activeTab = tabName;
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            const activeBtn = document.getElementById(`tab-${tabName}`);
-            if(activeBtn) activeBtn.classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
             
-            const searchInput = document.getElementById('search-input');
-            if(searchInput) searchInput.value = '';
+            document.getElementById('search-input').value = '';
+            
+            // Adjust layout classes
+            const container = document.getElementById('items-container');
+            if (activeTab === 'packages') {
+                container.className = 'items-grid layout-packages';
+            } else {
+                container.className = 'items-grid layout-compact';
+            }
 
-            renderItems();
+            renderItems(); // Build DOM once
         }
 
+        // DOM Builder - Only runs on Tab Switch or Delete/Add. Not on Search.
         function renderItems() {
             const container = document.getElementById('items-container');
             container.innerHTML = '';
-            
             const items = appData[activeTab] || [];
-            const searchTerm = document.getElementById('search-input').value.toLowerCase();
 
-            if (activeTab === 'packages') {
-                container.classList.remove('grid-view');
-            } else {
-                container.classList.add('grid-view');
-            }
+            let htmlString = "";
 
             items.forEach(item => {
-                let searchableText = `${item.title || ''} ${item.arabicTitle || ''} ${item.note || ''}`.toLowerCase();
+                // Build search index string
+                let searchIndex = `${item.title || ''} ${item.arabicTitle || ''} ${item.note || ''}`.toLowerCase();
                 if (item.testsData && Array.isArray(item.testsData)) {
-                    searchableText += ' ' + item.testsData.map(t => t.tests || '').join(' ').toLowerCase();
+                    searchIndex += ' ' + item.testsData.map(t => t.tests || '').join(' ').toLowerCase();
                 }
-                
-                if (searchTerm && !searchableText.includes(searchTerm)) return;
 
                 const sPrice = parsePrice(item.price);
                 const cPrice = parsePrice(item.cost);
@@ -291,8 +368,8 @@
                     tablesHtml = `<table><thead><tr><th>Category</th><th>Diagnostics Included</th></tr></thead><tbody>${rows}</tbody></table>`;
                 }
 
-                const cardHtml = `
-                    <div class="card">
+                htmlString += `
+                    <div class="card" data-search="${searchIndex}">
                         <div>
                             <h2 class="package-title">${item.title || 'Untitled'}</h2>
                             ${arabicHtml}
@@ -310,12 +387,27 @@
                         </div>
                     </div>
                 `;
-                container.innerHTML += cardHtml;
             });
 
-            if (container.innerHTML === '') {
-                container.innerHTML = `<p style="text-align:center; color: #888; width: 100%; padding: 40px 0;">No items found in this category.</p>`;
-            }
+            container.innerHTML = htmlString || `<p style="text-align:center; color: #888; width: 100%; grid-column: 1 / -1; padding: 40px 0;">No items found in this category.</p>`;
+        }
+
+        // HIGH PERFORMANCE SEARCH: Just toggles CSS display classes
+        function fastSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const searchTerm = document.getElementById('search-input').value.toLowerCase();
+                const cards = document.querySelectorAll('#items-container .card');
+                
+                cards.forEach(card => {
+                    const searchData = card.getAttribute('data-search');
+                    if (searchData.includes(searchTerm)) {
+                        card.classList.remove('hidden');
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+            }, 100); // 100ms debounce
         }
 
         function togglePrivacy() {
@@ -370,6 +462,58 @@
                 wrapper.style.position = 'absolute'; wrapper.style.left = '-9999px'; wrapper.style.top = '-9999px';
                 closeQuoteModal();
             });
+        }
+
+        // Admin functions
+        function toggleAdminFields() {
+            const cat = document.getElementById('new-category').value;
+            document.getElementById('field-tests').style.display = cat === 'packages' ? 'block' : 'none';
+            document.getElementById('field-fasting').style.display = cat === 'packages' ? 'block' : 'none';
+        }
+
+        function authenticate() {
+            const adminSection = document.getElementById('admin-section');
+            const authBtn = document.getElementById('auth-btn');
+            
+            if (adminSection.style.display === 'block') {
+                adminSection.style.display = 'none';
+                authBtn.innerText = 'Admin Access';
+            } else {
+                if (prompt("Enter secure access code:") === "Yousif95") {
+                    adminSection.style.display = 'block';
+                    authBtn.innerText = 'Lock Admin Access';
+                } else {
+                    alert("Incorrect Code.");
+                }
+            }
+        }
+
+        function addItem() {
+            const cat = document.getElementById('new-category').value;
+            const title = document.getElementById('new-title').value;
+            if (!title) { alert("English Title is required."); return; }
+
+            const newItem = {
+                id: Date.now(), title: title, arabicTitle: document.getElementById('new-arabic').value,
+                price: document.getElementById('new-price').value || '0 AED', cost: document.getElementById('new-cost').value || 'N/A', note: document.getElementById('new-note').value
+            };
+
+            if (cat === 'packages') {
+                newItem.fasting = document.getElementById('new-fasting').value;
+                const rawTests = document.getElementById('new-tests').value;
+                newItem.testsData = rawTests.split('\n').filter(l=>l.trim()).map(line => {
+                    const p = line.split('|'); return p.length >= 2 ? {category: p[0].trim(), tests: p[1].trim()} : {category: "General", tests: line.trim()};
+                });
+            }
+
+            if (!appData[cat]) appData[cat] = [];
+            appData[cat].unshift(newItem);
+            localStorage.setItem('daniaPortalData', JSON.stringify(appData));
+            
+            if (activeTab !== cat) switchTab(cat); else renderItems();
+            alert("Item added successfully.");
+            
+            ['new-title', 'new-arabic', 'new-price', 'new-cost', 'new-fasting', 'new-note', 'new-tests'].forEach(id => document.getElementById(id).value = '');
         }
 
         window.onload = loadDataAndSync;
