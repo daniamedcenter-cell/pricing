@@ -31,8 +31,8 @@
         .login-box button { background-color: var(--charcoal); color: var(--white); border: none; padding: 15px; width: 100%; font-family: 'Montserrat', sans-serif; font-weight: 600; border-radius: 30px; cursor: pointer; transition: 0.3s; font-size: 15px;}
         .login-box button:hover { background-color: #1a2023; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1);}
 
-        /* Main App Container (Hidden initially) */
-        #main-app { display: none; padding-bottom: 100px; /* Space for floating bar */ }
+        /* Main App Container */
+        #main-app { display: none; padding-bottom: 100px; }
 
         /* Top Sticky Control Bar */
         .top-bar { background-color: var(--charcoal); color: var(--white); padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1);}
@@ -49,7 +49,7 @@
         .sync-status { text-align: center; font-size: 12px; color: var(--light-gold); margin-top: 10px; font-weight: 600;}
 
         /* Portal Navigation Tabs */
-        .portal-nav { background-color: var(--white); display: flex; justify-content: center; border-bottom: 2px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .portal-nav { background-color: var(--white); display: flex; justify-content: center; border-bottom: 2px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.03); flex-wrap: wrap;}
         .tab-btn { background: none; border: none; color: var(--charcoal); padding: 18px 25px; font-size: 14px; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-bottom: 3px solid transparent; transition: all 0.3s; font-family: 'Montserrat', sans-serif; }
         .tab-btn:hover { color: var(--light-gold); background-color: var(--soft-blush); }
         .tab-btn.active { border-bottom-color: var(--light-gold); color: var(--light-gold); background-color: var(--soft-gold); }
@@ -58,7 +58,7 @@
         .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
         .items-grid { display: grid; gap: 25px; }
         .layout-packages { grid-template-columns: 1fr; max-width: 900px; margin: 0 auto;}
-        .layout-compact { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+        .layout-compact { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
 
         /* Card Styles */
         .card { background-color: var(--white); border: 1px solid var(--border-light); border-radius: 12px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); position: relative; transition: transform 0.2s ease, box-shadow 0.2s ease; display: flex; flex-direction: column; justify-content: space-between; }
@@ -84,13 +84,15 @@
         th { background-color: var(--soft-blush); color: var(--charcoal); font-weight: 600; font-family: 'Playfair Display', serif; font-size: 15px; }
         tr:hover { background-color: #fafafa; }
 
-        .btn-group { display: flex; gap: 8px; margin-top: 20px; justify-content: flex-end; border-top: 1px solid #f5f5f5; padding-top: 15px;}
+        .btn-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; justify-content: flex-end; border-top: 1px solid #f5f5f5; padding-top: 15px;}
         button { font-family: 'Montserrat', sans-serif; background-color: var(--light-gold); color: var(--white); border: none; padding: 8px 16px; font-size: 12px; font-weight: 600; border-radius: 30px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px;}
         button:hover { background-color: #b8962e; transform: translateY(-1px); }
         .quote-btn { background-color: var(--charcoal); }
         .quote-btn:hover { background-color: #1a2023; }
         .delete-btn { background-color: #fff; color: #ff4c4c; border: 1px solid #ff4c4c; }
         .delete-btn:hover { background-color: #ff4c4c; color: #fff; }
+        .edit-btn { background-color: #fff; color: #3b82f6; border: 1px solid #3b82f6; }
+        .edit-btn:hover { background-color: #3b82f6; color: #fff; }
 
         /* Multi-Quote Floating Bar */
         #quote-floating-bar { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--charcoal); color: var(--white); padding: 15px 30px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 2000; align-items: center; gap: 20px; border: 2px solid var(--light-gold);}
@@ -166,7 +168,7 @@
             <div class="admin-controls">
                 <button id="auth-btn" onclick="authenticate()" style="background-color: var(--charcoal);">Admin Editor Access</button>
                 <div id="admin-section" class="admin-form">
-                    <h3 style="color: var(--charcoal); margin-top:0; border-bottom: 1px solid var(--blush-rose); padding-bottom: 15px;">Add Custom Item</h3>
+                    <h3 id="admin-form-title" style="color: var(--charcoal); margin-top:0; border-bottom: 1px solid var(--blush-rose); padding-bottom: 15px;">Add Custom Item</h3>
                     
                     <div class="form-group">
                         <label>Category</label>
@@ -200,7 +202,8 @@
                     </div>
                     
                     <div style="display: flex; gap: 10px;">
-                        <button onclick="addItem()">Save Item</button>
+                        <button id="save-item-btn" onclick="saveOrUpdateItem()">Save Item</button>
+                        <button id="cancel-edit-btn" onclick="cancelEdit()" style="display: none; background: #ccc; color: var(--charcoal);">Cancel Edit</button>
                     </div>
                 </div>
             </div>
@@ -277,14 +280,14 @@
         let activeTab = 'packages';
         let searchTimeout = null;
         let selectedItemsForQuote = new Map();
+        let isAdmin = false;
+        let editingItemId = null; // Tracks if we are editing vs adding
 
         // 1. Authentication Logic
         window.onload = function() {
-            // Check if already authenticated in this session
             if (sessionStorage.getItem('daniaAuthenticated') === 'true') {
                 unlockApp();
             } else {
-                // Keep overlay visible, wait for user
                 document.getElementById('portal-password').focus();
             }
         }
@@ -306,7 +309,7 @@
         function unlockApp() {
             document.getElementById('login-overlay').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
-            loadDataAndSync(); // Begin data load only after unlock
+            loadDataAndSync(); 
         }
 
         // 2. Data Logic
@@ -314,6 +317,7 @@
             const portalStored = localStorage.getItem('daniaPortalData');
             if(portalStored) {
                 const stored = JSON.parse(portalStored);
+                appData.individual = stored.individual || [];
                 appData.medical = stored.medical || appData.medical;
                 appData.dental = stored.dental || appData.dental;
                 appData.aesthetic = stored.aesthetic || appData.aesthetic;
@@ -359,12 +363,13 @@
                 });
 
                 if (newIndividualData.length > 0) {
-                    appData.individual = newIndividualData;
-                    syncIndicator.innerHTML = `✓ Successfully synced ${newIndividualData.length} live tests from GitHub.`;
+                    // Merge new sync with any custom individual tests added manually
+                    const customIndividual = appData.individual.filter(i => i.id < 10000); 
+                    appData.individual = [...customIndividual, ...newIndividualData];
+                    
+                    syncIndicator.innerHTML = `✓ Successfully synced live tests from GitHub.`;
                     syncIndicator.style.color = "var(--success-green)";
                     if (activeTab === 'individual') renderItems();
-                } else {
-                    syncIndicator.innerHTML = "Excel file found, but no valid tests detected.";
                 }
             } catch (error) {
                 console.warn("Excel file not found on GitHub yet.");
@@ -421,10 +426,15 @@
                     tablesHtml = `<table><thead><tr><th>Category</th><th>Diagnostics Included</th></tr></thead><tbody>${rows}</tbody></table>`;
                 }
 
-                // Check button state
                 const isSelected = selectedItemsForQuote.has(item.id);
                 const btnStyle = isSelected ? `background-color: var(--success-green); color: #155724; border: 1px solid #155724;` : ``;
                 const btnText = isSelected ? `✓ Added to Quote` : `➕ Add to Quote`;
+
+                // Admin Controls
+                const adminBtns = isAdmin ? `
+                    <button class="edit-btn" onclick="editItem(${item.id})">✏️ Edit</button>
+                    <button class="delete-btn" onclick="deleteItem(${item.id})">🗑️ Delete</button>
+                ` : '';
 
                 htmlString += `
                     <div class="card" data-search="${searchIndex}">
@@ -441,6 +451,7 @@
                             ${tablesHtml}
                         </div>
                         <div class="btn-group">
+                            ${adminBtns}
                             <button class="quote-btn" style="${btnStyle}" onclick="toggleQuoteItem(${item.id})">${btnText}</button>
                         </div>
                     </div>
@@ -465,7 +476,6 @@
 
         // 3. Multi-Quote Engine
         function toggleQuoteItem(id) {
-            // Find item globally across all tabs
             let foundItem = null;
             for (let category in appData) {
                 const match = appData[category].find(i => i.id === id);
@@ -480,7 +490,7 @@
             }
             
             updateFloatingBar();
-            renderItems(); // Refresh buttons
+            renderItems();
         }
 
         function clearQuoteSelection() {
@@ -521,10 +531,8 @@
             let combinedHTML = "";
             let combinedFasting = [];
 
-            // Loop through all selected cart items
             selectedItemsForQuote.forEach((item) => {
                 totalPrice += parsePrice(item.price);
-                
                 const cleanTitle = item.title.replace(/^\d+\.\s*/, '');
                 
                 combinedHTML += `
@@ -538,15 +546,12 @@
                         </div>
                 `;
 
-                if (item.fasting || item.note) {
-                    combinedFasting.push(`<strong>${cleanTitle}:</strong> ${item.fasting || item.note}`);
-                }
+                if (item.fasting || item.note) combinedFasting.push(`<strong>${cleanTitle}:</strong> ${item.fasting || item.note}`);
 
                 if (item.testsData && Array.isArray(item.testsData) && item.testsData.length > 0) {
                     const testsList = item.testsData.map(row => `<span style="color: var(--charcoal); font-weight: 600;">${row.category}:</span> <span style="color: #666;">${row.tests}</span>`).join('<br>');
                     combinedHTML += `<div style="font-size: 13px; margin-top: 15px; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #eee; line-height: 1.6;">${testsList}</div>`;
                 }
-                
                 combinedHTML += `</div>`;
             });
 
@@ -562,7 +567,6 @@
 
             document.getElementById('qt-price').innerText = `Total: ${totalPrice} AED`;
 
-            // Process image download
             const targetNode = document.getElementById('quote-template');
             const wrapper = document.getElementById('quote-template-wrapper');
             wrapper.style.position = 'static'; wrapper.style.left = '0'; wrapper.style.top = '0';
@@ -574,12 +578,11 @@
                 link.href = canvas.toDataURL('image/png'); link.click();
                 wrapper.style.position = 'absolute'; wrapper.style.left = '-9999px'; wrapper.style.top = '-9999px';
                 closeQuoteModal();
-                // Optionally clear cart after download
                 clearQuoteSelection();
             });
         }
 
-        // 4. Privacy & Admin Utils
+        // 4. Privacy & Admin Master CRUD
         function togglePrivacy() {
             document.body.classList.toggle('privacy-mode');
             const btn = document.getElementById('privacy-toggle');
@@ -600,45 +603,143 @@
             const adminSection = document.getElementById('admin-section');
             const authBtn = document.getElementById('auth-btn');
             
-            if (adminSection.style.display === 'block') {
+            if (isAdmin) {
+                isAdmin = false;
                 adminSection.style.display = 'none';
                 authBtn.innerText = 'Admin Editor Access';
+                cancelEdit();
+                renderItems();
             } else {
                 if (prompt("Enter secure edit code:") === "Yousif95") {
+                    isAdmin = true;
                     adminSection.style.display = 'block';
                     authBtn.innerText = 'Lock Admin Editor';
+                    renderItems();
                 } else {
                     alert("Incorrect Edit Code.");
                 }
             }
         }
 
-        function addItem() {
+        // Core Edit Functionality
+        function editItem(id) {
+            let foundItem = null;
+            let foundCat = '';
+            for (let category in appData) {
+                const match = appData[category].find(i => i.id === id);
+                if (match) { foundItem = match; foundCat = category; break; }
+            }
+            if (!foundItem) return;
+
+            editingItemId = id;
+            
+            document.getElementById('admin-form-title').innerText = "Edit Item";
+            document.getElementById('new-category').value = foundCat;
+            toggleAdminFields(); 
+
+            document.getElementById('new-title').value = foundItem.title || '';
+            document.getElementById('new-arabic').value = foundItem.arabicTitle || '';
+            document.getElementById('new-price').value = foundItem.price || '';
+            document.getElementById('new-cost').value = foundItem.cost || '';
+            document.getElementById('new-note').value = foundItem.note || '';
+            document.getElementById('new-fasting').value = foundItem.fasting || '';
+            
+            if (foundItem.testsData && Array.isArray(foundItem.testsData)) {
+                document.getElementById('new-tests').value = foundItem.testsData.map(t => `${t.category} | ${t.tests}`).join('\n');
+            } else {
+                document.getElementById('new-tests').value = '';
+            }
+
+            document.getElementById('save-item-btn').innerText = 'Update Item';
+            document.getElementById('cancel-edit-btn').style.display = 'inline-block';
+            document.getElementById('admin-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function cancelEdit() {
+            editingItemId = null;
+            document.getElementById('admin-form-title').innerText = "Add Custom Item";
+            document.getElementById('save-item-btn').innerText = 'Save Item';
+            document.getElementById('cancel-edit-btn').style.display = 'none';
+            ['new-title', 'new-arabic', 'new-price', 'new-cost', 'new-fasting', 'new-note', 'new-tests'].forEach(id => document.getElementById(id).value = '');
+        }
+
+        function saveOrUpdateItem() {
             const cat = document.getElementById('new-category').value;
             const title = document.getElementById('new-title').value;
             if (!title) { alert("English Title is required."); return; }
 
-            const newItem = {
-                id: Date.now(), title: title, arabicTitle: document.getElementById('new-arabic').value,
-                price: document.getElementById('new-price').value || '0 AED', cost: document.getElementById('new-cost').value || 'N/A', note: document.getElementById('new-note').value
-            };
-
+            let testsData = [];
             if (cat === 'packages') {
-                newItem.fasting = document.getElementById('new-fasting').value;
                 const rawTests = document.getElementById('new-tests').value;
-                newItem.testsData = rawTests.split('\n').filter(l=>l.trim()).map(line => {
+                testsData = rawTests.split('\n').filter(l=>l.trim()).map(line => {
                     const p = line.split('|'); return p.length >= 2 ? {category: p[0].trim(), tests: p[1].trim()} : {category: "General", tests: line.trim()};
                 });
             }
 
-            if (!appData[cat]) appData[cat] = [];
-            appData[cat].unshift(newItem);
+            if (editingItemId) {
+                // Update Path
+                let oldCat = '';
+                for (let category in appData) {
+                    if (appData[category].find(i => i.id === editingItemId)) { oldCat = category; break; }
+                }
+                
+                // Remove from previous category
+                appData[oldCat] = appData[oldCat].filter(i => i.id !== editingItemId);
+                
+                // Create updated object
+                const updatedItem = {
+                    id: editingItemId,
+                    title: title,
+                    arabicTitle: document.getElementById('new-arabic').value,
+                    price: document.getElementById('new-price').value || '0 AED',
+                    cost: document.getElementById('new-cost').value || 'N/A',
+                    note: document.getElementById('new-note').value
+                };
+                if (cat === 'packages') {
+                    updatedItem.fasting = document.getElementById('new-fasting').value;
+                    updatedItem.testsData = testsData;
+                }
+
+                if (!appData[cat]) appData[cat] = [];
+                appData[cat].unshift(updatedItem);
+                
+                alert("Item updated successfully.");
+                cancelEdit();
+            } else {
+                // Save New Path
+                const newItem = {
+                    id: Date.now(), title: title, arabicTitle: document.getElementById('new-arabic').value,
+                    price: document.getElementById('new-price').value || '0 AED', cost: document.getElementById('new-cost').value || 'N/A', note: document.getElementById('new-note').value
+                };
+                if (cat === 'packages') {
+                    newItem.fasting = document.getElementById('new-fasting').value;
+                    newItem.testsData = testsData;
+                }
+
+                if (!appData[cat]) appData[cat] = [];
+                appData[cat].unshift(newItem);
+                alert("Item successfully added.");
+                ['new-title', 'new-arabic', 'new-price', 'new-cost', 'new-fasting', 'new-note', 'new-tests'].forEach(id => document.getElementById(id).value = '');
+            }
+
             localStorage.setItem('daniaPortalData', JSON.stringify(appData));
-            
             if (activeTab !== cat) switchTab(cat); else renderItems();
-            alert("Item added successfully.");
-            
-            ['new-title', 'new-arabic', 'new-price', 'new-cost', 'new-fasting', 'new-note', 'new-tests'].forEach(id => document.getElementById(id).value = '');
+        }
+
+        // Global Delete Functionality
+        function deleteItem(id) {
+            if(confirm("Permanently delete this item?")) {
+                for (let category in appData) {
+                    appData[category] = appData[category].filter(i => i.id !== id);
+                }
+                localStorage.setItem('daniaPortalData', JSON.stringify(appData));
+                
+                if(selectedItemsForQuote.has(id)) {
+                    selectedItemsForQuote.delete(id);
+                    updateFloatingBar();
+                }
+                renderItems();
+            }
         }
     </script>
 </body>
