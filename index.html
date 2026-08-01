@@ -59,7 +59,6 @@
         /* Smart Layout Grids */
         .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
         .items-grid { display: grid; gap: 25px; }
-        .layout-packages { grid-template-columns: 1fr; max-width: 900px; margin: 0 auto;}
         .layout-compact { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
 
         /* Card Styles */
@@ -68,23 +67,13 @@
         .card.hidden { display: none !important; }
 
         .package-title { color: var(--charcoal); font-size: 19px; font-weight: 600; margin: 0 0 5px; line-height: 1.3; }
-        .layout-packages .package-title { font-size: 24px; }
         .package-arabic-title { font-size: 18px; color: var(--light-gold); margin: 0 0 15px; padding-bottom: 12px; text-align: left; direction: rtl; border-bottom: 1px solid rgba(232, 195, 200, 0.5); }
-        .layout-packages .package-arabic-title { font-size: 22px; }
 
         .package-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; font-size: 12px; }
         .meta-tag { background-color: var(--soft-gold); padding: 5px 12px; border-radius: 20px; font-weight: 600; color: var(--charcoal); border: 1px solid rgba(212, 175, 55, 0.3); }
         .internal-data { background-color: #f1f5f9; border: 1px dashed #cbd5e1; color: #475569; }
         .meta-tag.fasting { background-color: var(--soft-blush); border-color: var(--blush-rose); color: #9A6A71; }
         .meta-tag.profit { background-color: #f0fdf4; color: #166534; border: 1px dashed #86efac; }
-
-        /* Tables for packages */
-        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 15px; border: 1px solid #f0f0f0; border-radius: 8px; overflow: hidden; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #f0f0f0; font-size: 13px;}
-        td:first-child { border-right: 1px solid #f0f0f0; }
-        tr:last-child td { border-bottom: none; }
-        th { background-color: var(--soft-blush); color: var(--charcoal); font-weight: 600; font-family: 'Playfair Display', serif; font-size: 15px; }
-        tr:hover { background-color: #fafafa; }
 
         .btn-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; justify-content: flex-end; border-top: 1px solid #f5f5f5; padding-top: 15px;}
         button { font-family: 'Montserrat', sans-serif; background-color: var(--light-gold); color: var(--white); border: none; padding: 8px 16px; font-size: 12px; font-weight: 600; border-radius: 30px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px;}
@@ -168,15 +157,14 @@
         </div>
 
         <div class="portal-nav no-print">
-            <button class="tab-btn active" onclick="switchTab('packages')" id="tab-packages">Blood Packages</button>
-            <button class="tab-btn" onclick="switchTab('individual')" id="tab-individual">Individual Tests</button>
+            <button class="tab-btn active" onclick="switchTab('individual')" id="tab-individual">Individual Tests</button>
             <button class="tab-btn" onclick="switchTab('medical')" id="tab-medical">Medical</button>
             <button class="tab-btn" onclick="switchTab('dental')" id="tab-dental">Dental</button>
             <button class="tab-btn" onclick="switchTab('aesthetic')" id="tab-aesthetic">Aesthetics</button>
         </div>
 
         <div class="container">
-            <div id="items-container" class="items-grid"></div>
+            <div id="items-container" class="items-grid layout-compact"></div>
 
             <div class="admin-controls">
                 <button id="auth-btn" onclick="authenticate()" style="background-color: var(--charcoal);">Admin Editor Access</button>
@@ -185,8 +173,7 @@
                     
                     <div class="form-group">
                         <label>Category</label>
-                        <select id="new-category" onchange="toggleAdminFields()">
-                            <option value="packages">Blood Package</option>
+                        <select id="new-category">
                             <option value="individual">Individual Blood Test</option>
                             <option value="medical">Medical Treatment</option>
                             <option value="dental">Dental Treatment</option>
@@ -202,17 +189,12 @@
                         <div style="flex: 1;"><label>Cost Price (Internal)</label><input type="text" id="new-cost" placeholder="e.g., 100 AED"></div>
                     </div>
 
-                    <div class="form-group" id="field-fasting" style="display: none;">
+                    <div class="form-group" id="field-fasting">
                         <label>Fasting/Prep Requirement</label>
                         <input type="text" id="new-fasting" placeholder="e.g., Yes (10-12 hours)">
                     </div>
 
                     <div class="form-group"><label>Special Note</label><input type="text" id="new-note" placeholder="e.g., Consultation Included"></div>
-                    
-                    <div class="form-group" id="field-tests" style="display: none;">
-                        <label>Tests Included (For Packages Only: Category | Tests)</label>
-                        <textarea id="new-tests" rows="5" placeholder="General Chemistry | Calcium, Uric acid"></textarea>
-                    </div>
                     
                     <div style="display: flex; gap: 10px;">
                         <button id="save-item-btn" onclick="saveOrUpdateItem()">Save Item</button>
@@ -273,14 +255,8 @@
     </div>
 
     <script>
-        // Data Configuration
+        // Data Configuration (Packages removed)
         const defaultData = {
-            packages: [
-                { id: 1, title: "1. GENERAL CHECKUP TEST", arabicTitle: "الفحص الشامل", price: "150 AED", cost: "100 AED", fasting: "Yes (10-12 hours). Fasting is required primarily for an accurate Lipid Profile.", note: "Provider: Micro Health Labs", testsData: [{ category: "General Chemistry", tests: "Calcium, Uric acid, Creatinine, Blood urea nitrogen (BUN), eGFR, AST, ALT, Total protein, Albumin, Direct bilirubin, GGT, Total bilirubin, Alkaline phosphatase, Indirect bilirubin, Serum globulin" }, { category: "Iron & Vitamins", tests: "Serum iron, Total iron binding capacity (TIBC), Transferrin saturation %, Vitamin D, Vitamin B12, Ferritin, Folic acid" }, {category: "Electrolytes & Others", tests: "Sodium, Chloride, Potassium, LDH"}, { category: "Lipid Profile", tests: "Cholesterol, HDL, LDL, VLDL, Triglycerides, Cholesterol/HDL ratio, LDL/HDL ratio" }, { category: "Blood Tests & Hormones", tests: "CBC, HbA1c, Average blood glucose, T3, T4, TSH, FSH, PSA, CRP, ESR" }] },
-                { id: 2, title: "2. FIRST TRIMESTER PACKAGE", arabicTitle: "باقة الثلث الأول من الحمل", price: "250 AED", cost: "135 AED", fasting: "No. Includes Random Blood Sugar (RBS).", note: "Provider: Micro Health Labs", testsData: [{ category: "Hematology & Blood Typing", tests: "CBC, Blood Grouping & RH Factor" }, { category: "Hormones", tests: "TSH (Thyroid Stimulating Hormone)" }, {category: "Diabetic Screening", tests: "RBS (Random Blood Sugar)"}, { category: "Infectious Diseases / Serology", tests: "HBsAg, HIV Screening, Rubella IgG, VDRL, HCV Antibody" }, { category: "Clinical Pathology", tests: "Urine Routine Analysis" }] },
-                { id: 3, title: "3. BASIC HEALTH PACKAGE", arabicTitle: "باقة الصحة الأساسية", price: "75 AED", cost: "25 AED", fasting: "Yes (8-12 hours). Required for Fasting Blood Sugar (FBS).", note: "Provider: Thumbay Lab", testsData: [{ category: "Hematology & Inflammation", tests: "Complete Blood Count (CBC), C-Reactive Protein (CRP)" }, {category: "Iron Studies", tests: "Iron, Total Iron Binding Capacity (TIBC)"}, {category: "Diabetic Screening", tests: "Fasting Blood Sugar (FBS), Random Blood Sugar (RBS)"}, { category: "Organ Function", tests: "Liver Function Profile, Renal (Kidney) Function Profile"}, {category: "Lipid Profile", tests: "Lipid Profile, Cholesterol Ratios"}] },
-                { id: 4, title: "4. ESSENTIAL TESTS PACKAGE", arabicTitle: "باقة الفحوصات الأساسية", price: "150 AED", cost: "85 AED", fasting: "Yes (10-12 hours). Required for Lipid Profile.", note: "Includes a Free GP Consultation. Provider: Thumbay Lab", testsData: [{category: "Consultation", tests: "Free GP Consultation"}, { category: "Hematology", tests: "Complete Blood Count (CBC)" }, {category: "Diabetic Screening", tests: "HbA1c — Blood Sugar (3 Months average)"}, { category: "Vitamins & Iron", tests: "Vitamin D, Iron Profile (Iron & TIBC)"}, {category: "Hormones", tests: "Thyroid Function (TSH, T3, T4)"}, {category: "Organ Function", tests: "Liver Profile (LFT), Kidney Profile (RFT)"}, {category: "Lipid Profile", tests: "Lipid Profile (Cholesterol)"}] }
-            ],
             individual: [],
             medical: [
                 { id: 201, title: "General Practitioner Consultation", arabicTitle: "استشارة طبيب عام", price: "150 AED", cost: "0 AED", note: "Free follow-up within 7 days" }
@@ -296,15 +272,15 @@
         };
 
         let appData = JSON.parse(JSON.stringify(defaultData));
-        let activeTab = 'packages';
+        let activeTab = 'individual';
         let searchTimeout = null;
         let selectedItemsForQuote = new Map();
         let isAdmin = false;
-        let editingItemId = null; // Tracks if we are editing vs adding
+        let editingItemId = null;
         let sharedData = {};
         let unsavedSharedChanges = false;
 
-        const editableCategories = ['packages', 'individual', 'medical', 'dental', 'aesthetic'];
+        const editableCategories = ['individual', 'medical', 'dental', 'aesthetic'];
 
         function escapeHtml(value) {
             return String(value ?? '').replace(/[&<>"']/g, char => ({
@@ -329,11 +305,7 @@
                 cost: normalizeText(item.cost || 'N/A'),
                 note: normalizeText(item.note),
                 fasting: normalizeText(item.fasting),
-                provider: normalizeText(item.provider),
-                testsData: Array.isArray(item.testsData) ? item.testsData.map(row => ({
-                    category: normalizeText(row.category || 'General'),
-                    tests: normalizeText(row.tests)
-                })) : undefined
+                provider: normalizeText(item.provider)
             };
         }
 
@@ -370,7 +342,7 @@
             editableCategories.forEach(category => {
                 if (Array.isArray(categories[category])) {
                     const incoming = categories[category].map(normalizeItem);
-                    const defaults = category === 'packages' ? defaultData.packages : (defaultData[category] || []);
+                    const defaults = defaultData[category] || [];
                     if (category === 'individual') {
                         const synced = (appData.individual || []).filter(item => item.id >= 10000);
                         appData.individual = [...incoming, ...synced];
@@ -413,7 +385,7 @@
 
         // 2. Data Logic
         async function loadDataAndSync() {
-            switchTab('packages');
+            switchTab('individual');
             
             const syncIndicator = document.getElementById('sync-indicator');
             syncIndicator.textContent = "Loading shared data and latest Excel prices...";
@@ -438,67 +410,108 @@
                 }
             }
             
-            try {
-                const response = await fetch('./Combined_Lab_Prices.xlsx');
-                if (!response.ok) throw new Error("File not found");
-                
-                const arrayBuffer = await response.arrayBuffer();
-                const workbook = XLSX.read(new Uint8Array(arrayBuffer), {type: 'array'});
-                const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-                
-                let newIndividualData = [];
-                json.forEach((row, index) => {
-                    const testName = row['Test Name'] || row['Test_Name'] || row['TestName'];
-                    const costPriceRaw = row['Cost Price'] || row['Cost_Price'] || row['CostPrice'];
-                    const lab = row['Lab'] || row['Provider'] || '';
-                    
-                    if (testName && costPriceRaw !== undefined) {
-                        const costNum = parseFloat(costPriceRaw);
-                        const cleanLab = String(lab || '').trim();
-                        if (!isNaN(costNum) && costNum > 0) {
-                            const formatPrice = num => num % 1 !== 0 ? num.toFixed(2) : num;
-                            newIndividualData.push({
-                                id: 10000 + index, 
-                                title: String(testName).trim(),
-                                arabicTitle: '',
-                                price: formatPrice(costNum * 2) + " AED",
-                                cost: formatPrice(costNum) + " AED",
-                                note: '',
-                                provider: cleanLab
-                            });
-                        } else {
-                            newIndividualData.push({
-                                id: 10000 + index,
-                                title: String(testName).trim(),
-                                arabicTitle: '',
-                                price: "Confirm with lab",
-                                cost: String(costPriceRaw).trim() || "N/A",
-                                note: "Price on request",
-                                provider: cleanLab,
-                                priceOnRequest: true
-                            });
-                        }
-                    }
-                });
+            let newIndividualData = [];
 
-                if (newIndividualData.length > 0) {
-                    // Merge new sync with any custom individual tests added manually
-                    const customIndividual = appData.individual.filter(i => i.id < 10000); 
-                    appData.individual = [...customIndividual, ...newIndividualData];
+            // 1. Fetch new AVM Lab Data (RPLPriceList (1).csv)
+            try {
+                const responseAVM = await fetch('./RPLPriceList (1).csv');
+                if (responseAVM.ok) {
+                    const textBuffer = await responseAVM.arrayBuffer();
+                    const workbookAVM = XLSX.read(new Uint8Array(textBuffer), {type: 'array'});
+                    const jsonAVM = XLSX.utils.sheet_to_json(workbookAVM.Sheets[workbookAVM.SheetNames[0]]);
                     
-                    syncIndicator.textContent = `Synced ${newIndividualData.length} lab tests from Excel.`;
-                    syncIndicator.style.color = "var(--success-green)";
-                    updateProviderFilter();
-                    if (activeTab === 'individual') renderItems();
+                    jsonAVM.forEach((row, index) => {
+                        const testName = row['PRODUCT NAME'] || row['PRODUCT_NAME'];
+                        const costPriceRaw = row['B2B'];
+                        if (testName && costPriceRaw !== undefined) {
+                            const costNum = parseFloat(costPriceRaw);
+                            const formatPrice = num => num % 1 !== 0 ? num.toFixed(2) : num;
+                            if (!isNaN(costNum) && costNum > 0) {
+                                newIndividualData.push({
+                                    id: 30000 + index, 
+                                    title: String(testName).trim(),
+                                    arabicTitle: '',
+                                    price: formatPrice(costNum * 2) + " AED",
+                                    cost: formatPrice(costNum) + " AED",
+                                    note: '',
+                                    provider: 'AVM'
+                                });
+                            }
+                        }
+                    });
                 }
             } catch (error) {
-                console.warn("Excel file not found on GitHub yet.");
-                syncIndicator.textContent = "Note: Combined_Lab_Prices.xlsx not found on server.";
-                syncIndicator.style.color = "#ff4c4c";
+                console.warn("RPLPriceList (1).csv file not found on server yet.");
             }
 
-            updateProviderFilter();
-            renderItems();
+            // 2. Fetch Existing Excel Labs
+            try {
+                const response = await fetch('./Combined_Lab_Prices.xlsx');
+                if (response.ok) {
+                    const arrayBuffer = await response.arrayBuffer();
+                    const workbook = XLSX.read(new Uint8Array(arrayBuffer), {type: 'array'});
+                    const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                    
+                    json.forEach((row, index) => {
+                        const testName = row['Test Name'] || row['Test_Name'] || row['TestName'];
+                        const costPriceRaw = row['Cost Price'] || row['Cost_Price'] || row['CostPrice'];
+                        const lab = row['Lab'] || row['Provider'] || '';
+                        
+                        if (testName && costPriceRaw !== undefined) {
+                            const costNum = parseFloat(costPriceRaw);
+                            const cleanLab = String(lab || '').trim();
+                            if (!isNaN(costNum) && costNum > 0) {
+                                const formatPrice = num => num % 1 !== 0 ? num.toFixed(2) : num;
+                                newIndividualData.push({
+                                    id: 10000 + index, 
+                                    title: String(testName).trim(),
+                                    arabicTitle: '',
+                                    price: formatPrice(costNum * 2) + " AED",
+                                    cost: formatPrice(costNum) + " AED",
+                                    note: '',
+                                    provider: cleanLab
+                                });
+                            } else {
+                                newIndividualData.push({
+                                    id: 10000 + index,
+                                    title: String(testName).trim(),
+                                    arabicTitle: '',
+                                    price: "Confirm with lab",
+                                    cost: String(costPriceRaw).trim() || "N/A",
+                                    note: "Price on request",
+                                    provider: cleanLab,
+                                    priceOnRequest: true
+                                });
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.warn("Combined_Lab_Prices.xlsx file not found on server yet.");
+            }
+
+            if (newIndividualData.length > 0) {
+                // Merge custom tests with synced tests
+                const customIndividual = appData.individual.filter(i => i.id < 10000); 
+                appData.individual = [...customIndividual, ...newIndividualData];
+                
+                // Sort array to ensure AVM provider tests appear at the very top
+                appData.individual.sort((a, b) => {
+                    const isA_AVM = a.provider === 'AVM';
+                    const isB_AVM = b.provider === 'AVM';
+                    if (isA_AVM && !isB_AVM) return -1;
+                    if (!isA_AVM && isB_AVM) return 1;
+                    return 0; // Maintain existing order for non-AVM items
+                });
+
+                syncIndicator.textContent = `Synced ${newIndividualData.length} lab tests from Excel & CSV.`;
+                syncIndicator.style.color = "var(--success-green)";
+                updateProviderFilter();
+                if (activeTab === 'individual') renderItems();
+            } else {
+                syncIndicator.textContent = "Data loaded successfully.";
+                updateProviderFilter();
+            }
         }
 
         function parsePrice(str) {
@@ -513,13 +526,6 @@
             document.getElementById(`tab-${tabName}`).classList.add('active');
             document.getElementById('search-input').value = '';
             document.getElementById('provider-filter').value = '';
-            
-            const container = document.getElementById('items-container');
-            if (activeTab === 'packages') {
-                container.className = 'items-grid layout-packages';
-            } else {
-                container.className = 'items-grid layout-compact';
-            }
             updateProviderFilter();
             renderItems();
         }
@@ -533,9 +539,6 @@
             items.forEach(item => {
                 const provider = getProvider(item);
                 let searchIndex = `${item.title || ''} ${item.arabicTitle || ''} ${item.note || ''} ${provider}`.toLowerCase();
-                if (item.testsData && Array.isArray(item.testsData)) {
-                    searchIndex += ' ' + item.testsData.map(t => `${t.category || ''} ${t.tests || ''}`).join(' ').toLowerCase();
-                }
 
                 const sPrice = parsePrice(item.price);
                 const cPrice = parsePrice(item.cost);
@@ -548,12 +551,6 @@
                 const fastingHtml = item.fasting ? `<div class="meta-tag fasting">Prep: ${escapeHtml(item.fasting)}</div>` : '';
                 const arabicHtml = item.arabicTitle ? `<h3 class="package-arabic-title">${escapeHtml(item.arabicTitle)}</h3>` : '';
                 
-                let tablesHtml = '';
-                if (activeTab === 'packages' && item.testsData && Array.isArray(item.testsData)) {
-                    const rows = item.testsData.map(row => `<tr><td style="width: 30%;"><strong>${escapeHtml(row.category)}</strong></td><td>${escapeHtml(row.tests)}</td></tr>`).join('');
-                    tablesHtml = `<table><thead><tr><th>Category</th><th>Diagnostics Included</th></tr></thead><tbody>${rows}</tbody></table>`;
-                }
-
                 const isSelected = selectedItemsForQuote.has(item.id);
                 const btnStyle = isSelected ? `background-color: var(--success-green); color: #155724; border: 1px solid #155724;` : ``;
                 const btnText = isSelected ? `✓ Added to Quote` : `➕ Add to Quote`;
@@ -577,7 +574,6 @@
                                 ${providerHtml}
                                 ${noteHtml}
                             </div>
-                            ${tablesHtml}
                         </div>
                         <div class="btn-group">
                             ${adminBtns}
@@ -694,11 +690,6 @@
                 `;
 
                 if (patientNote) combinedFasting.push(`<strong>${escapeHtml(cleanTitle)}:</strong> ${escapeHtml(patientNote)}`);
-
-                if (item.testsData && Array.isArray(item.testsData) && item.testsData.length > 0) {
-                    const testsList = item.testsData.map(row => `<span style="color: var(--charcoal); font-weight: 600;">${escapeHtml(row.category)}:</span> <span style="color: #666;">${escapeHtml(row.tests)}</span>`).join('<br>');
-                    combinedHTML += `<div style="font-size: 13px; margin-top: 15px; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #eee; line-height: 1.6;">${testsList}</div>`;
-                }
                 combinedHTML += `</div>`;
             });
 
@@ -738,12 +729,6 @@
             } else {
                 btn.classList.remove('active'); btn.innerHTML = "👁️ Patient View";
             }
-        }
-
-        function toggleAdminFields() {
-            const cat = document.getElementById('new-category').value;
-            document.getElementById('field-tests').style.display = cat === 'packages' ? 'block' : 'none';
-            document.getElementById('field-fasting').style.display = cat === 'packages' ? 'block' : 'none';
         }
 
         function authenticate() {
@@ -837,7 +822,6 @@
             
             document.getElementById('admin-form-title').innerText = "Edit Item";
             document.getElementById('new-category').value = foundCat;
-            toggleAdminFields(); 
 
             document.getElementById('new-title').value = foundItem.title || '';
             document.getElementById('new-arabic').value = foundItem.arabicTitle || '';
@@ -845,12 +829,6 @@
             document.getElementById('new-cost').value = foundItem.cost || '';
             document.getElementById('new-note').value = foundItem.note || '';
             document.getElementById('new-fasting').value = foundItem.fasting || '';
-            
-            if (foundItem.testsData && Array.isArray(foundItem.testsData)) {
-                document.getElementById('new-tests').value = foundItem.testsData.map(t => `${t.category} | ${t.tests}`).join('\n');
-            } else {
-                document.getElementById('new-tests').value = '';
-            }
 
             document.getElementById('save-item-btn').innerText = 'Update Item';
             document.getElementById('cancel-edit-btn').style.display = 'inline-block';
@@ -862,21 +840,13 @@
             document.getElementById('admin-form-title').innerText = "Add Custom Item";
             document.getElementById('save-item-btn').innerText = 'Save Item';
             document.getElementById('cancel-edit-btn').style.display = 'none';
-            ['new-title', 'new-arabic', 'new-price', 'new-cost', 'new-fasting', 'new-note', 'new-tests'].forEach(id => document.getElementById(id).value = '');
+            ['new-title', 'new-arabic', 'new-price', 'new-cost', 'new-fasting', 'new-note'].forEach(id => document.getElementById(id).value = '');
         }
 
         function saveOrUpdateItem() {
             const cat = document.getElementById('new-category').value;
             const title = document.getElementById('new-title').value.trim();
             if (!title) { alert("English Title is required."); return; }
-
-            let testsData = [];
-            if (cat === 'packages') {
-                const rawTests = document.getElementById('new-tests').value;
-                testsData = rawTests.split('\n').filter(l=>l.trim()).map(line => {
-                    const p = line.split('|'); return p.length >= 2 ? {category: p[0].trim(), tests: p[1].trim()} : {category: "General", tests: line.trim()};
-                });
-            }
 
             if (editingItemId) {
                 // Update Path
@@ -895,12 +865,9 @@
                     arabicTitle: document.getElementById('new-arabic').value.trim(),
                     price: document.getElementById('new-price').value.trim() || '0 AED',
                     cost: document.getElementById('new-cost').value.trim() || 'N/A',
-                    note: document.getElementById('new-note').value.trim()
+                    note: document.getElementById('new-note').value.trim(),
+                    fasting: document.getElementById('new-fasting').value.trim()
                 };
-                if (cat === 'packages') {
-                    updatedItem.fasting = document.getElementById('new-fasting').value.trim();
-                    updatedItem.testsData = testsData;
-                }
 
                 if (!appData[cat]) appData[cat] = [];
                 appData[cat].unshift(updatedItem);
@@ -910,18 +877,19 @@
             } else {
                 // Save New Path
                 const newItem = {
-                    id: Date.now(), title: title, arabicTitle: document.getElementById('new-arabic').value.trim(),
-                    price: document.getElementById('new-price').value.trim() || '0 AED', cost: document.getElementById('new-cost').value.trim() || 'N/A', note: document.getElementById('new-note').value.trim()
+                    id: Date.now(), 
+                    title: title, 
+                    arabicTitle: document.getElementById('new-arabic').value.trim(),
+                    price: document.getElementById('new-price').value.trim() || '0 AED', 
+                    cost: document.getElementById('new-cost').value.trim() || 'N/A', 
+                    note: document.getElementById('new-note').value.trim(),
+                    fasting: document.getElementById('new-fasting').value.trim()
                 };
-                if (cat === 'packages') {
-                    newItem.fasting = document.getElementById('new-fasting').value.trim();
-                    newItem.testsData = testsData;
-                }
 
                 if (!appData[cat]) appData[cat] = [];
                 appData[cat].unshift(newItem);
                 alert("Item successfully added.");
-                ['new-title', 'new-arabic', 'new-price', 'new-cost', 'new-fasting', 'new-note', 'new-tests'].forEach(id => document.getElementById(id).value = '');
+                ['new-title', 'new-arabic', 'new-price', 'new-cost', 'new-fasting', 'new-note'].forEach(id => document.getElementById(id).value = '');
             }
 
             markSharedDataDirty();
