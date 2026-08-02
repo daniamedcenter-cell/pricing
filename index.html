@@ -74,6 +74,9 @@
         .internal-data { background-color: #f1f5f9; border: 1px dashed #cbd5e1; color: #475569; }
         .meta-tag.fasting { background-color: var(--soft-blush); border-color: var(--blush-rose); color: #9A6A71; }
 
+        /* Tests List Layout */
+        .tests-description { font-size: 13px; color: #555; background: #f9f9f9; padding: 12px; border-radius: 6px; margin-bottom: 15px; border-left: 3px solid var(--blush-rose); line-height: 1.5; }
+
         .btn-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; justify-content: flex-end; border-top: 1px solid #f5f5f5; padding-top: 15px;}
         button { font-family: 'Montserrat', sans-serif; background-color: var(--light-gold); color: var(--white); border: none; padding: 8px 16px; font-size: 12px; font-weight: 600; border-radius: 30px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px;}
         button:hover { background-color: #b8962e; transform: translateY(-1px); }
@@ -254,6 +257,61 @@
     </div>
 
     <script>
+        // AVM Profiles Master Test Dictionary
+        const avmProfileTests = {
+            "INFERTILITY PROFILE A 58": "Vitamin D, Vitamin B12, Folate, Testosterone, TSH, Complete Blood Count (21), LH, Prolactin, FSH, Kidney Function (5), Diabetes Screen (2), Lipid Profile (8), Iron Profile (3), Liver Profile (11)",
+            "BONE AND MUSCLE PROFILE B 59": "Everything in Bone & Muscle Profile A + Phosphorous, PTH, Serum Copper, Rheumatoid Factor (RF)",
+            "INFERTILITY PROFILE C 113": "Everything in Infertility Profile B + Elements (22), Complete Vitamin Profile (12), Steroid Profile (11)",
+            "PREGNANCY PROFILE C 131": "Everything in Pregnancy Profile B + Elements (22), Complete Vitamin Profile (12), Steroid Profile (11)",
+            "ANEMIA PROFILE A 55": "Vitamin D, Vitamin B12, Folate, Ferritin, TSH, Complete Blood Count (21), Liver Profile (11), Diabetes Screen (2), Kidney Function (5), Lipid Profile (8), Iron Profile (3)",
+            "ARTHRITIS PROFILE A 54": "Vitamin D, Vitamin B12, C-Reactive Protein (CRP), TSH, Complete Blood Count (21), Liver Profile (11), Diabetes Screen (2), Kidney Function (5), Lipid Profile (8), Iron Profile (3)",
+            "BASIC DIABETES PACKAGE": "TSH, Serum Electrolytes (3), Iron Profile (3), Complete Blood Count (21), Liver Profile (11), Diabetes Screen (3), Kidney Function (5), Lipid Profile (8)",
+            "ATHLETE PROFILE A 60": "Vitamin D, Vitamin B12, Folate, Ferritin, TSH, Complete Blood Count (21), Testosterone, Serum Zinc, LH, Prolactin, FSH, Diabetes Screen (2), Liver Profile (11), Kidney Function (5), Lipid Profile (8), Iron Profile (3)",
+            "PREGNANCY PROFILE B 86": "Everything in Pregnancy Profile A + Complete Urine Analysis (26)",
+            "ARTHRITIS PROFILE C 103": "Everything in Arthritis Profile B + Elements (22), Complete Vitamin Profile (12), Steroid Profile (11)",
+            "INFECTION PROFILE B 59": "Everything in Infection Profile A + HSV II IgM, HSV I IgG, HSV I IgM, HSV II IgG, Chlamydia pneumoniae IgM",
+            "OBESITY PROFILE C 107": "Everything in Obesity Profile B + Elements (22), Complete Vitamin Profile (12), Steroid Profile (11)",
+            "STANDARD WELLNESS PACKAGE": "Everything in Basic Wellness + Iron Profile (3), Vitamin D, Vitamin B12, Testosterone",
+            "PCOD PROFILE A 57": "Testosterone, Insulin Fasting, Estradiol, LH, Prolactin, FSH, TSH, Complete Blood Count (21), Lipid Profile (8), Liver Profile (11), Kidney Function (5), Iron Profile (3), Diabetes Screen (2)",
+            "ARTHRITIS PROFILE B 58": "Everything in Arthritis Profile A + ANA, Anti-CCP, RF, Phosphorous",
+            "BONE AND MUSCLE PROFILE C 104": "Everything in Bone & Muscle Profile B + Elements (22), Complete Vitamin Profile (12), Steroid Profile (11)",
+            "OBESITY PROFILE A 55": "Vitamin D, Vitamin B12, Insulin Fasting, TSH, Testosterone, Complete Blood Count (21), Liver Profile (11), Diabetes Screen (2), Kidney Function (5), Lipid Profile (8), Iron Profile (3)",
+            "ANEMIA PROFILE B 100": "Everything in Anemia Profile A + Elements (22), Complete Vitamin Profile (12), Steroid Profile (11)",
+            "PRE SURGERY PROFILE A 80": "Anti HCV, HBsAg, HIV P24 Ag/Ab, Complete Urine Analysis (26), TSH, Complete Blood Count (21), Diabetes Screen (2), Lipid Profile (8), Liver Profile (11), Kidney Function (5), Iron Profile (3)",
+            "HAIR HEALTH PROFILE B 58": "Everything in Hair Health Profile A + Serum Copper",
+            "INFERTILITY PROFILE B 68": "Everything in Infertility Profile A + AMH, Estradiol, Progesterone, Aldosterone, Androstenedione, DHEA-S, SHBG, Cortisol, Free Testosterone, 17-OH Progesterone",
+            "HAIR HEALTH PROFILE A 57": "Vitamin D, Vitamin B12, Serum Zinc, Magnesium, TSH, Complete Blood Count (21), Folate, Ferritin, Iron Profile (3), Diabetes Screen (2), Kidney Function (5), Lipid Profile (8), Liver Profile (11)",
+            "PREMIUM DIABETES PACKAGE": "Everything in Standard Diabetes + Cardiac Risk Markers (6), Homocysteine, Vitamin D, Vitamin B12",
+            "PCOD PROFILE C 107": "Everything in PCOD Profile B + Elements (22), Complete Vitamin Profile (12), Steroid Profile (11)",
+            "PCOD PROFILE B 62": "Everything in PCOD Profile A + Free-Testosterone, 17-OH Progesterone, DHEA-S, AMH, SHBG",
+            "ATHLETE PROFILE B 64": "Everything in Athlete Profile A + Free Testosterone, Estradiol, Creatinine Phosphokinase, Serum Copper",
+            "STANDARD DIABETES PACKAGE": "Everything in Basic Diabetes + Pancreatic Profile (2), C-Peptide, Insulin Fasting",
+            "INFECTION PROFILE A 54": "HIV P24 Ag/Ab, HBsAg, Anti HCV, TSH, Complete Blood Count (21), Liver Profile (11), Diabetes Screen (2), Kidney Function (5), Lipid Profile (8), Iron Profile (3)",
+            "BASIC WELLNESS PACKAGE": "FT4, FT3, TSH, Complete Blood Count (21), Liver Profile (11), Kidney Function (5), Lipid Profile (8), Diabetes Screen (2)",
+            "BASIC WELLNESS PACKAGE-NEW": "FT4, FT3, TSH, Complete Blood Count (21), Liver Profile (11), Kidney Function (5), Lipid Profile (8), Diabetes Screen (2)",
+            "PREGNANCY PROFILE A 60": "Vitamin D, Vitamin B12, Folate, Ferritin, Anti HCV, HBsAg, HIV P24 Ag/Ab, T3, T4, TSH, Complete Blood Count (21), Diabetes Screen (2), Liver Profile (11), Kidney Function (5), Iron Profile (3), Lipid Profile (8)",
+            "BONE AND MUSCLE PROFILE A 55": "Vitamin D, Vitamin B12, Serum Zinc, Magnesium, TSH, Complete Blood Count (21), Liver Profile (11), Diabetes Screen (2), Kidney Function (5), Lipid Profile (8), Iron Profile (3)",
+            "ATHLETE PROFILE C 109": "Everything in Athlete Profile B + Elements (22), Complete Vitamin Profile (12), Steroid Profile (11)",
+            "HAIR HEALTH PROFILE C 103": "Everything in Hair Health Profile B + Elements (22), Complete Vitamin Profile (12), Steroid Profile (11)",
+            "OBESITY PROFILE B 62": "Everything in Obesity Profile A + Cardiac Risk Markers (5), Cortisol, DHEA-S",
+            "WOMEN HORMONE PROFILE": "Estradiol, LH, Progesterone, FSH, Prolactin, FT3, FT4, TSH, Testosterone",
+            "METABOLIC PROFILE (BIOT)": "CRP, TSH, Pancreatic Profile (2), Liver Profile (11), Lipid Profile (8), Kidney Function (5), Iron Profile (3)",
+            "THYRO 5": "FT4, FT3, T3, TSH, T4",
+            "TSH-LH-FSH-PRL": "TSH, FSH, LH, Prolactin",
+            "KIDNEY FUNCTION TESTS": "BUN, Creatinine, BUN/Creatinine Ratio, Uric Acid, Calcium",
+            "TOTAL THYROID": "T3, TSH, T4",
+            "VITAMINS PACKAGE": "Vitamin D, Vitamin B12, Folate",
+            "CARDIAC PROFILE": "Cardiac Risk Markers (6), Homocysteine, Lipid Profile (8)",
+            "PRE EMPLOYMENT PROFILE": "HIV P24 Ag/Ab, HBsAg, Anti HCV, Anti-Syphilis",
+            "LIPID PROFILE": "Total Cholesterol, HDL, LDL, Triglycerides, VLDL, Non-HDL, TC/HDL Ratio, LDL/HDL Ratio",
+            "IRON DEFICIENCY": "Iron, Transferrin Saturation, TIBC",
+            "LIVER FUNCTION TESTS": "Bilirubin (Total, Direct, Indirect), SGOT, SGPT, Albumin/Globulin Ratio, ALP, GGT, Protein Total, Albumin, Globulin",
+            "IRON DEFICIENCY PLUS": "Everything in Iron Deficiency + Vitamin B12, Complete Blood Count (21), Ferritin",
+            "FEMALE CANCER MARKERS": "AFP, CEA, Beta HCG, CA19-9, CA125, CA15-3",
+            "FREE THYROID": "FT4, FT3, TSH",
+            "MALE CANCER MARKERS": "AFP, CEA, Beta HCG, CA19-9, PSA, Free PSA"
+        };
+
         // Data Configuration (Cost Only)
         const defaultData = {
             individual: [],
@@ -303,7 +361,8 @@
                 cost: normalizeText(item.cost || 'N/A'),
                 note: normalizeText(item.note),
                 fasting: normalizeText(item.fasting),
-                provider: normalizeText(item.provider)
+                provider: normalizeText(item.provider),
+                testsText: normalizeText(item.testsText)
             };
         }
 
@@ -425,12 +484,16 @@
                             const costNum = parseFloat(costPriceRaw);
                             const formatPrice = num => num % 1 !== 0 ? num.toFixed(2) : num;
                             if (!isNaN(costNum) && costNum > 0) {
+                                const cleanTestName = String(testName).trim();
+                                const testsText = avmProfileTests[cleanTestName] || '';
+                                
                                 newIndividualData.push({
                                     id: 30000 + index, 
-                                    title: String(testName).trim(),
+                                    title: cleanTestName,
                                     arabicTitle: '',
                                     cost: formatPrice(costNum) + " AED",
                                     note: '',
+                                    testsText: testsText,
                                     provider: 'AVM'
                                 });
                             }
@@ -540,6 +603,8 @@
                 const fastingHtml = item.fasting ? `<div class="meta-tag fasting">Prep: ${escapeHtml(item.fasting)}</div>` : '';
                 const arabicHtml = item.arabicTitle ? `<h3 class="package-arabic-title">${escapeHtml(item.arabicTitle)}</h3>` : '';
                 
+                const testsHtml = item.testsText ? `<div class="tests-description"><strong>Tests Included:</strong> <span>${escapeHtml(item.testsText)}</span></div>` : '';
+
                 const isSelected = selectedItemsForQuote.has(item.id);
                 const btnStyle = isSelected ? `background-color: var(--success-green); color: #155724; border: 1px solid #155724;` : ``;
                 const btnText = isSelected ? `✓ Added` : `➕ Add to Summary`;
@@ -561,6 +626,7 @@
                                 ${providerHtml}
                                 ${noteHtml}
                             </div>
+                            ${testsHtml}
                         </div>
                         <div class="btn-group">
                             ${adminBtns}
@@ -677,6 +743,11 @@
                 `;
 
                 if (patientNote) combinedFasting.push(`<strong>${escapeHtml(cleanTitle)}:</strong> ${escapeHtml(patientNote)}`);
+                
+                if (item.testsText) {
+                    combinedHTML += `<div style="font-size: 13px; margin-top: 15px; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #eee; line-height: 1.6;"><strong>Tests Included:</strong> ${escapeHtml(item.testsText)}</div>`;
+                }
+                
                 combinedHTML += `</div>`;
             });
 
