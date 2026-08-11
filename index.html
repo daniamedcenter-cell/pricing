@@ -102,12 +102,15 @@
 
         /* Modals and Canvas */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(44, 53, 57, 0.8); z-index: 3000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal { background: var(--white); padding: 40px; border-radius: 15px; width: 450px; text-align: center; border: 1px solid var(--light-gold); box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
-        .modal h3 { font-size: 24px; margin-top: 0; color: var(--charcoal); }
-        .modal input { width: 90%; padding: 12px 15px; margin: 15px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; font-family: 'Montserrat', sans-serif; outline: none; }
         
-        #quote-template-wrapper { position: absolute; left: -9999px; top: -9999px; }
-        #quote-template { width: 850px; padding: 60px; background-color: var(--white); color: var(--charcoal); box-sizing: border-box; font-family: 'Montserrat', sans-serif; position: relative; }
+        .modal { background: var(--white); padding: 40px; border-radius: 15px; width: 900px; max-width: 95vw; max-height: 95vh; overflow-y: auto; text-align: left; border: 1px solid var(--light-gold); box-shadow: 0 20px 50px rgba(0,0,0,0.2); display: flex; flex-direction: column;}
+        .modal-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 15px; width: 100%; }
+        .modal h3 { font-size: 24px; margin-top: 0; color: var(--charcoal); margin-bottom: 0;}
+        .modal input { width: 100%; max-width: 400px; padding: 12px 15px; margin: 10px 0 25px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; font-family: 'Montserrat', sans-serif; outline: none; }
+        
+        .preview-pane { width: 100%; overflow-x: auto; background: #f4f6f8; padding: 25px; border-radius: 10px; border: 1px solid #e2e8f0; display: flex; justify-content: center; box-sizing: border-box; }
+
+        #quote-template { width: 850px; padding: 60px; background-color: var(--white); color: var(--charcoal); box-sizing: border-box; font-family: 'Montserrat', sans-serif; position: relative; margin: 0 auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05);}
         #quote-template::after { content: ''; position: absolute; top: 20px; left: 20px; right: 20px; bottom: 20px; border: 1px solid var(--light-gold); pointer-events: none; }
         .qt-header { text-align: center; margin-bottom: 40px; }
         .qt-header img { max-width: 280px; }
@@ -125,6 +128,7 @@
             .top-bar { padding: 12px 16px; align-items: stretch; }
             .search-container, .search-container input, .filter-select, .toggle-btn { width: 100%; }
             #quote-floating-bar { width: calc(100% - 36px); box-sizing: border-box; border-radius: 18px; justify-content: space-between; }
+            .modal-header-row { flex-direction: column; align-items: flex-start; gap: 15px; }
         }
     </style>
 </head>
@@ -221,37 +225,41 @@
         </div>
     </div>
 
+    <!-- Modifed Modal for Live Preview -->
     <div id="quote-modal" class="modal-overlay">
         <div class="modal">
-            <h3>Treatment Summary</h3>
-            <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Enter patient details to personalize the combined summary.</p>
-            <input type="text" id="patient-name-input" placeholder="Patient Name or Phone (Optional)">
-            <div style="margin-top: 20px; display: flex; gap: 12px; justify-content: center;">
-                <button onclick="closeQuoteModal()" style="background: #f1f1f1; color: var(--charcoal);">Cancel</button>
-                <button onclick="executeQuoteDownload()" class="quote-btn">Download Image</button>
+            <div class="modal-header-row">
+                <h3>Treatment Summary Preview</h3>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="closeQuoteModal()" style="background: #f1f1f1; color: var(--charcoal);">Cancel</button>
+                    <button onclick="executeQuoteDownload()" class="quote-btn">Download Image</button>
+                </div>
             </div>
-        </div>
-    </div>
-
-    <div id="quote-template-wrapper">
-        <div id="quote-template">
-            <div class="qt-header"><img src="https://daniamc.com/DMC_Marketing_Logo_Source_edited%20copy.png" alt="Logo"></div>
-            <div id="qt-patient-box" class="qt-patient"></div>
-            <h2 id="qt-title" class="qt-title"></h2>
-            <h3 id="qt-arabic" class="qt-arabic"></h3>
             
-            <div class="qt-body-box" id="qt-body-box">
-                <p id="qt-fasting-container" style="margin-top:0; border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 15px; margin-bottom: 15px;">
-                    <strong style="color: var(--charcoal); display:block; margin-bottom:5px;">Clinical Prep Notes:</strong> 
-                    <span id="qt-fasting" style="color: #555; line-height: 1.6;"></span>
-                </p>
-                <div id="qt-tests" style="margin-top: 15px;"></div>
-            </div>
+            <p style="font-size: 14px; color: #666; margin-bottom: 5px;">Enter patient details to personalize the combined summary.</p>
+            <input type="text" id="patient-name-input" placeholder="Patient Name or Phone (Optional)" onkeyup="updatePreview()">
+            
+            <div class="preview-pane">
+                <div id="quote-template">
+                    <div class="qt-header"><img src="https://daniamc.com/DMC_Marketing_Logo_Source_edited%20copy.png" alt="Logo"></div>
+                    <div id="qt-patient-box" class="qt-patient"></div>
+                    <h2 id="qt-title" class="qt-title"></h2>
+                    <h3 id="qt-arabic" class="qt-arabic"></h3>
+                    
+                    <div class="qt-body-box" id="qt-body-box">
+                        <p id="qt-fasting-container" style="margin-top:0; border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 15px; margin-bottom: 15px;">
+                            <strong style="color: var(--charcoal); display:block; margin-bottom:5px;">Clinical Prep Notes:</strong> 
+                            <span id="qt-fasting" style="color: #555; line-height: 1.6;"></span>
+                        </p>
+                        <div id="qt-tests" style="margin-top: 15px;"></div>
+                    </div>
 
-            <div class="qt-price-box" id="qt-price"></div>
-            <div class="qt-footer">
-                Amwaj Building, Shop 1-4, Al Jada, Sharjah, UAE<br>
-                This document is valid for 30 days. Subject to clinical indication and medical consultation.
+                    <div class="qt-price-box" id="qt-price"></div>
+                    <div class="qt-footer">
+                        Amwaj Building, Shop 1-4, Al Jada, Sharjah, UAE<br>
+                        This document is valid for 30 days. Subject to clinical indication and medical consultation.
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -703,15 +711,15 @@
 
         function openMultiQuoteModal() {
             document.getElementById('patient-name-input').value = '';
+            updatePreview(); // Generate initial layout for preview
             document.getElementById('quote-modal').style.display = 'flex';
         }
+
         function closeQuoteModal() { 
             document.getElementById('quote-modal').style.display = 'none'; 
         }
 
-        function executeQuoteDownload() {
-            if (selectedItemsForQuote.size === 0) return;
-            
+        function updatePreview() {
             const ptName = document.getElementById('patient-name-input').value.trim();
             const ptBox = document.getElementById('qt-patient-box');
             if (ptName) { ptBox.style.display = 'block'; ptBox.innerHTML = `<strong>Prepared For:</strong> ${escapeHtml(ptName)}`; } else { ptBox.style.display = 'none'; }
@@ -730,12 +738,16 @@
                 else hasPriceOnRequest = true;
                 const cleanTitle = item.title.replace(/^\d+\.\s*/, '');
                 const patientNote = item.fasting || getPatientNote(item);
+                const provider = getProvider(item);
                 
+                // Add dynamically generated Lab Tag if provider is found
+                const providerTag = provider ? `<span style="font-size: 13px; font-family: 'Montserrat', sans-serif; font-weight: 600; background: var(--soft-gold); color: var(--light-gold); padding: 4px 12px; border-radius: 20px; border: 1px solid var(--light-gold); margin-left: 12px; vertical-align: middle; display: inline-block; line-height: 1;">Lab: ${escapeHtml(provider)}</span>` : '';
+
                 combinedHTML += `
                     <div style="border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 20px; margin-bottom: 20px;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <div style="font-size: 22px; font-weight: 600; color: var(--charcoal); font-family: 'Playfair Display', serif;">${escapeHtml(cleanTitle)}</div>
+                                <div style="font-size: 22px; font-weight: 600; color: var(--charcoal); font-family: 'Playfair Display', serif;">${escapeHtml(cleanTitle)} ${providerTag}</div>
                                 ${item.arabicTitle ? `<div style="color: var(--light-gold); font-size: 18px; direction: rtl;">${escapeHtml(item.arabicTitle)}</div>` : ''}
                             </div>
                             <div style="font-size: 20px; font-weight: bold; color: var(--charcoal);">${escapeHtml(item.cost)}</div>
@@ -763,17 +775,23 @@
 
             const formattedTotal = totalCost % 1 !== 0 ? totalCost.toFixed(2) : totalCost;
             document.getElementById('qt-price').innerText = hasPriceOnRequest ? `Total Cost: ${formattedTotal} AED + items to confirm` : `Total Cost: ${formattedTotal} AED`;
+        }
 
+        function executeQuoteDownload() {
+            if (selectedItemsForQuote.size === 0) return;
+            
+            updatePreview(); // Ensure the latest inputs are processed
+            
+            const ptName = document.getElementById('patient-name-input').value.trim();
             const targetNode = document.getElementById('quote-template');
-            const wrapper = document.getElementById('quote-template-wrapper');
-            wrapper.style.position = 'static'; wrapper.style.left = '0'; wrapper.style.top = '0';
 
+            // Generate image directly from the visible preview
             html2canvas(targetNode, { scale: 2, backgroundColor: "#FFFFFF", useCORS: true }).then(canvas => {
                 const link = document.createElement('a');
                 const safeName = ptName ? ptName.replace(/\s+/g, '_') : 'Patient';
                 link.download = `مركز_دانيا_الطبي_${safeName}.png`;
-                link.href = canvas.toDataURL('image/png'); link.click();
-                wrapper.style.position = 'absolute'; wrapper.style.left = '-9999px'; wrapper.style.top = '-9999px';
+                link.href = canvas.toDataURL('image/png'); 
+                link.click();
                 closeQuoteModal();
                 clearQuoteSelection();
             });
