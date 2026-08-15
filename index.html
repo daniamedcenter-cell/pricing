@@ -72,6 +72,7 @@
         .package-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; font-size: 12px; }
         .meta-tag { background-color: var(--soft-gold); padding: 5px 12px; border-radius: 20px; font-weight: 600; color: var(--charcoal); border: 1px solid rgba(212, 175, 55, 0.3); }
         .internal-data { background-color: #f1f5f9; border: 1px dashed #cbd5e1; color: #475569; }
+        .meta-tag.profit { background-color: #f0fdf4; color: #166534; border: 1px dashed #86efac; }
         .meta-tag.fasting { background-color: var(--soft-blush); border-color: var(--blush-rose); color: #9A6A71; }
         .meta-tag.outlab { background-color: #fee2e2; color: #991b1b; border-color: #fca5a5; }
 
@@ -139,7 +140,7 @@
         <img src="https://daniamc.com/DMC_Marketing_Logo_Source_edited%20copy.png" alt="Logo" style="max-width: 300px; margin-bottom: 40px;">
         <div class="login-box">
             <h2 style="margin-top: 0; color: var(--charcoal);">Staff Portal Access</h2>
-            <p style="font-size: 13px; color: #666; margin-bottom: 25px;">Please enter the designated clinic password to access cost data.</p>
+            <p style="font-size: 13px; color: #666; margin-bottom: 25px;">Please enter the designated clinic password to access pricing data.</p>
             <input type="password" id="portal-password" placeholder="Enter Password" onkeypress="handleLoginEnter(event)">
             <button onclick="loginToPortal()">Unlock Portal</button>
             <p id="login-error" style="color: #ff4c4c; font-size: 13px; margin-top: 15px; display: none; font-weight: 600;">Incorrect password. Please try again.</p>
@@ -191,9 +192,9 @@
                     <div class="form-group"><label>English Title</label><input type="text" id="new-title" placeholder="e.g., Teeth Whitening"></div>
                     <div class="form-group"><label>Arabic Title</label><input type="text" id="new-arabic" placeholder="e.g., تبييض الأسنان" dir="rtl"></div>
                     
-                    <div class="form-group">
-                        <label>Cost Price</label>
-                        <input type="text" id="new-cost" placeholder="e.g., 100 AED">
+                    <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                        <div style="flex: 1;"><label>Selling Price</label><input type="text" id="new-price" placeholder="e.g., 300 AED"></div>
+                        <div style="flex: 1;"><label>Cost Price (Internal)</label><input type="text" id="new-cost" placeholder="e.g., 100 AED"></div>
                     </div>
 
                     <div class="form-group" id="field-fasting">
@@ -222,7 +223,7 @@
         <span id="quote-count" style="font-weight: 600; font-size: 15px;">0 Items Selected</span>
         <div style="display: flex; gap: 10px;">
             <button onclick="clearQuoteSelection()" style="background: transparent; border: 1px solid var(--white); color: var(--white); padding: 10px 20px;">Clear List</button>
-            <button onclick="openMultiQuoteModal()" style="background: var(--light-gold); padding: 10px 20px; color: white;">Generate Summary</button>
+            <button onclick="openMultiQuoteModal()" style="background: var(--light-gold); padding: 10px 20px; color: white;">Generate Quote</button>
         </div>
     </div>
 
@@ -230,14 +231,14 @@
     <div id="quote-modal" class="modal-overlay">
         <div class="modal">
             <div class="modal-header-row">
-                <h3>Treatment Summary Preview</h3>
+                <h3>Treatment Plan Preview</h3>
                 <div style="display: flex; gap: 10px;">
                     <button onclick="closeQuoteModal()" style="background: #f1f1f1; color: var(--charcoal);">Cancel</button>
                     <button onclick="executeQuoteDownload()" class="quote-btn">Download Image</button>
                 </div>
             </div>
             
-            <p style="font-size: 14px; color: #666; margin-bottom: 5px;">Enter patient details to personalize the combined summary.</p>
+            <p style="font-size: 14px; color: #666; margin-bottom: 5px;">Enter patient details to personalize the combined quote.</p>
             <input type="text" id="patient-name-input" placeholder="Patient Name or Phone (Optional)" onkeyup="updatePreview()">
             
             <div class="preview-pane">
@@ -321,19 +322,19 @@
             "MALE CANCER MARKERS": "AFP, CEA, Beta HCG, CA19-9, PSA, Free PSA"
         };
 
-        // Data Configuration (Cost Only)
+        // Data Configuration (Price + Cost)
         const defaultData = {
             individual: [],
             medical: [
-                { id: 201, title: "General Practitioner Consultation", arabicTitle: "استشارة طبيب عام", cost: "0 AED", note: "Free follow-up within 7 days" }
+                { id: 201, title: "General Practitioner Consultation", arabicTitle: "استشارة طبيب عام", price: "150 AED", cost: "0 AED", note: "Free follow-up within 7 days" }
             ],
             dental: [
-                { id: 301, title: "Consultation & X-Ray", arabicTitle: "استشارة وأشعة", cost: "10 AED", note: "" },
-                { id: 302, title: "Scaling & Polishing", arabicTitle: "تنظيف وتلميع الأسنان", cost: "50 AED", note: "Removes plaque and tartar" }
+                { id: 301, title: "Consultation & X-Ray", arabicTitle: "استشارة وأشعة", price: "100 AED", cost: "10 AED", note: "" },
+                { id: 302, title: "Scaling & Polishing", arabicTitle: "تنظيف وتلميع الأسنان", price: "250 AED", cost: "50 AED", note: "Removes plaque and tartar" }
             ],
             aesthetic: [
-                { id: 401, title: "Botox (1 Area)", arabicTitle: "بوتوكس (منطقة واحدة)", cost: "150 AED", note: "Allergan brand" },
-                { id: 402, title: "Hydrafacial", arabicTitle: "هيدرا فيشل", cost: "100 AED", note: "Deep cleansing and hydration" }
+                { id: 401, title: "Botox (1 Area)", arabicTitle: "بوتوكس (منطقة واحدة)", price: "400 AED", cost: "150 AED", note: "Allergan brand" },
+                { id: 402, title: "Hydrafacial", arabicTitle: "هيدرا فيشل", price: "450 AED", cost: "100 AED", note: "Deep cleansing and hydration" }
             ]
         };
 
@@ -367,6 +368,7 @@
                 ...item,
                 title: normalizeText(item.title),
                 arabicTitle: normalizeText(item.arabicTitle),
+                price: normalizeText(item.price || '0 AED'),
                 cost: normalizeText(item.cost || 'N/A'),
                 note: normalizeText(item.note),
                 fasting: normalizeText(item.fasting),
@@ -383,6 +385,14 @@
 
         function getPatientNote(item) {
             return String(item.note || '').replace(/\s*Provider:\s*[^|]+/i, '').trim();
+        }
+
+        // B2C Dynamic Pricing Engine
+        function calculateB2CPrice(cost) {
+            if (isNaN(cost) || cost <= 0) return null;
+            if (cost < 10) return 30;
+            if (cost >= 10 && cost <= 20) return 45;
+            return cost * 2.5; // Tier 3: > 20 AED = 2.5x Markup
         }
 
         function buildSharedDataSnapshot() {
@@ -454,7 +464,7 @@
             switchTab('individual');
             
             const syncIndicator = document.getElementById('sync-indicator');
-            syncIndicator.textContent = "Loading shared data and latest cost files...";
+            syncIndicator.textContent = "Loading shared data and calculating dynamic pricing...";
 
             try {
                 const sharedResponse = await fetch(`./portal-data.json?v=${Date.now()}`, { cache: 'no-store' });
@@ -495,11 +505,13 @@
                             if (!isNaN(costNum) && costNum > 0) {
                                 const cleanTestName = String(testName).trim();
                                 const testsText = avmProfileTests[cleanTestName] || '';
+                                const priceNum = calculateB2CPrice(costNum);
                                 
                                 newIndividualData.push({
                                     id: 30000 + index, 
                                     title: cleanTestName,
                                     arabicTitle: '',
+                                    price: formatPrice(priceNum) + " AED",
                                     cost: formatPrice(costNum) + " AED",
                                     note: '',
                                     testsText: testsText,
@@ -531,10 +543,12 @@
                             const cleanLab = String(lab || '').trim();
                             const formatPrice = num => num % 1 !== 0 ? num.toFixed(2) : num;
                             if (!isNaN(costNum) && costNum > 0) {
+                                const priceNum = calculateB2CPrice(costNum);
                                 newIndividualData.push({
                                     id: 10000 + index, 
                                     title: String(testName).trim(),
                                     arabicTitle: '',
+                                    price: formatPrice(priceNum) + " AED",
                                     cost: formatPrice(costNum) + " AED",
                                     note: '',
                                     provider: cleanLab
@@ -544,6 +558,7 @@
                                     id: 10000 + index,
                                     title: String(testName).trim(),
                                     arabicTitle: '',
+                                    price: "Confirm with lab",
                                     cost: String(costPriceRaw).trim() || "N/A",
                                     note: "Cost on request",
                                     provider: cleanLab
@@ -561,7 +576,6 @@
                 const responseOutlab = await fetch('./PriceList (1).xls');
                 if (responseOutlab.ok) {
                     const textBuffer = await responseOutlab.arrayBuffer();
-                    // Using SheetJS to parse the HTML table structured as .xls
                     const workbookOutlab = XLSX.read(new Uint8Array(textBuffer), {type: 'array'});
                     const jsonOutlab = XLSX.utils.sheet_to_json(workbookOutlab.Sheets[workbookOutlab.SheetNames[0]]);
                     
@@ -575,11 +589,13 @@
                             const formatPrice = num => num % 1 !== 0 ? num.toFixed(2) : num;
                             if (!isNaN(costNum) && costNum > 0) {
                                 const cleanTestName = String(testName).trim();
+                                const priceNum = calculateB2CPrice(costNum);
                                 
                                 newIndividualData.push({
                                     id: 40000 + index, 
                                     title: cleanTestName,
                                     arabicTitle: '',
+                                    price: formatPrice(priceNum) + " AED",
                                     cost: formatPrice(costNum) + " AED",
                                     note: tatRaw ? `TAT: ${tatRaw} Days` : '',
                                     provider: 'AVM Outlab'
@@ -615,7 +631,7 @@
                     return 0; // Maintain existing order for tests within the same rank
                 });
 
-                syncIndicator.textContent = `Synced ${newIndividualData.length} lab tests from internal sheets.`;
+                syncIndicator.textContent = `Synced and calculated ${newIndividualData.length} B2C prices.`;
                 syncIndicator.style.color = "var(--success-green)";
                 updateProviderFilter();
                 if (activeTab === 'individual') renderItems();
@@ -651,6 +667,11 @@
                 const provider = getProvider(item);
                 let searchIndex = `${item.title || ''} ${item.arabicTitle || ''} ${item.note || ''} ${provider}`.toLowerCase();
 
+                const sPrice = parsePrice(item.price);
+                const cPrice = parsePrice(item.cost);
+                const marginNum = sPrice - cPrice;
+                const margin = (sPrice > 0 && cPrice > 0) ? `+${marginNum % 1 !== 0 ? marginNum.toFixed(2) : marginNum} AED` : 'N/A';
+
                 const patientNote = getPatientNote(item);
                 const noteHtml = patientNote ? `<div class="meta-tag">${escapeHtml(patientNote)}</div>` : '';
                 const providerHtml = provider ? `<div class="meta-tag internal-data">Lab: ${escapeHtml(provider)}</div>` : '';
@@ -662,7 +683,7 @@
 
                 const isSelected = selectedItemsForQuote.has(item.id);
                 const btnStyle = isSelected ? `background-color: var(--success-green); color: #155724; border: 1px solid #155724;` : ``;
-                const btnText = isSelected ? `✓ Added` : `➕ Add to Summary`;
+                const btnText = isSelected ? `✓ Added` : `➕ Add to Quote`;
 
                 // Admin Controls
                 const adminBtns = isAdmin && item.id < 10000 ? `
@@ -676,7 +697,9 @@
                             <h2 class="package-title">${escapeHtml(item.title || 'Untitled')}</h2>
                             ${arabicHtml}
                             <div class="package-meta">
-                                <div class="meta-tag" style="background-color: var(--blush-rose); color: var(--white); border: none;">Cost: ${escapeHtml(item.cost || 'N/A')}</div>
+                                <div class="meta-tag" style="background-color: var(--blush-rose); color: var(--white); border: none;">${escapeHtml(item.price || '0 AED')}</div>
+                                <div class="meta-tag internal-data">Cost: ${escapeHtml(item.cost || 'N/A')}</div>
+                                <div class="meta-tag internal-data profit">Margin: ${escapeHtml(margin)}</div>
                                 ${outLabHtml}
                                 ${fastingHtml}
                                 ${providerHtml}
@@ -772,17 +795,17 @@
             const ptBox = document.getElementById('qt-patient-box');
             if (ptName) { ptBox.style.display = 'block'; ptBox.innerHTML = `<strong>Prepared For:</strong> ${escapeHtml(ptName)}`; } else { ptBox.style.display = 'none'; }
 
-            document.getElementById('qt-title').innerText = "Personalized Cost Plan"; 
-            document.getElementById('qt-arabic').innerText = "خطة التكلفة المخصصة";
+            document.getElementById('qt-title').innerText = "Personalized Treatment Plan"; 
+            document.getElementById('qt-arabic').innerText = "خطة العلاج المخصصة";
             
-            let totalCost = 0;
+            let totalPrice = 0;
             let hasPriceOnRequest = false;
             let combinedHTML = "";
             let combinedFasting = [];
 
             selectedItemsForQuote.forEach((item) => {
-                const itemCost = parsePrice(item.cost);
-                if (itemCost > 0) totalCost += itemCost;
+                const itemPrice = parsePrice(item.price);
+                if (itemPrice > 0) totalPrice += itemPrice;
                 else hasPriceOnRequest = true;
                 const cleanTitle = item.title.replace(/^\d+\.\s*/, '');
                 const patientNote = item.fasting || getPatientNote(item);
@@ -798,7 +821,7 @@
                                 <div style="font-size: 22px; font-weight: 600; color: var(--charcoal); font-family: 'Playfair Display', serif;">${escapeHtml(cleanTitle)} ${providerTag}</div>
                                 ${item.arabicTitle ? `<div style="color: var(--light-gold); font-size: 18px; direction: rtl;">${escapeHtml(item.arabicTitle)}</div>` : ''}
                             </div>
-                            <div style="font-size: 20px; font-weight: bold; color: var(--charcoal);">${escapeHtml(item.cost)}</div>
+                            <div style="font-size: 20px; font-weight: bold; color: var(--charcoal);">${escapeHtml(item.price)}</div>
                         </div>
                 `;
 
@@ -821,8 +844,8 @@
                 fastingContainer.style.display = 'none';
             }
 
-            const formattedTotal = totalCost % 1 !== 0 ? totalCost.toFixed(2) : totalCost;
-            document.getElementById('qt-price').innerText = hasPriceOnRequest ? `Total Cost: ${formattedTotal} AED + items to confirm` : `Total Cost: ${formattedTotal} AED`;
+            const formattedTotal = totalPrice % 1 !== 0 ? totalPrice.toFixed(2) : totalPrice;
+            document.getElementById('qt-price').innerText = hasPriceOnRequest ? `Total: ${formattedTotal} AED + items to confirm` : `Total: ${formattedTotal} AED`;
         }
 
         function executeQuoteDownload() {
@@ -950,6 +973,7 @@
 
             document.getElementById('new-title').value = foundItem.title || '';
             document.getElementById('new-arabic').value = foundItem.arabicTitle || '';
+            document.getElementById('new-price').value = foundItem.price || '';
             document.getElementById('new-cost').value = foundItem.cost || '';
             document.getElementById('new-note').value = foundItem.note || '';
             document.getElementById('new-fasting').value = foundItem.fasting || '';
@@ -964,7 +988,7 @@
             document.getElementById('admin-form-title').innerText = "Add Custom Item";
             document.getElementById('save-item-btn').innerText = 'Save Item';
             document.getElementById('cancel-edit-btn').style.display = 'none';
-            ['new-title', 'new-arabic', 'new-cost', 'new-fasting', 'new-note'].forEach(id => document.getElementById(id).value = '');
+            ['new-title', 'new-arabic', 'new-price', 'new-cost', 'new-fasting', 'new-note'].forEach(id => document.getElementById(id).value = '');
         }
 
         function saveOrUpdateItem() {
@@ -985,6 +1009,7 @@
                     id: editingItemId,
                     title: title,
                     arabicTitle: document.getElementById('new-arabic').value.trim(),
+                    price: document.getElementById('new-price').value.trim() || '0 AED',
                     cost: document.getElementById('new-cost').value.trim() || 'N/A',
                     note: document.getElementById('new-note').value.trim(),
                     fasting: document.getElementById('new-fasting').value.trim()
@@ -1001,6 +1026,7 @@
                     id: Date.now(), 
                     title: title, 
                     arabicTitle: document.getElementById('new-arabic').value.trim(),
+                    price: document.getElementById('new-price').value.trim() || '0 AED',
                     cost: document.getElementById('new-cost').value.trim() || 'N/A', 
                     note: document.getElementById('new-note').value.trim(),
                     fasting: document.getElementById('new-fasting').value.trim()
@@ -1009,7 +1035,7 @@
                 if (!appData[cat]) appData[cat] = [];
                 appData[cat].unshift(newItem);
                 alert("Item successfully added.");
-                ['new-title', 'new-arabic', 'new-cost', 'new-fasting', 'new-note'].forEach(id => document.getElementById(id).value = '');
+                ['new-title', 'new-arabic', 'new-price', 'new-cost', 'new-fasting', 'new-note'].forEach(id => document.getElementById(id).value = '');
             }
 
             markSharedDataDirty();
