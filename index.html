@@ -852,49 +852,51 @@
         function executeQuoteDownload() {
             if (selectedItemsForQuote.size === 0) return;
             
-            updatePreview(); 
+            updatePreview(); // Ensure the latest inputs are processed
             
             const ptName = document.getElementById('patient-name-input').value.trim();
             const targetNode = document.getElementById('quote-template');
             
-            // Create a temporary unconstrained container to prevent modal-clipping bugs
-            const tempContainer = document.createElement('div');
-            tempContainer.style.position = 'absolute';
-            tempContainer.style.top = '0';
-            tempContainer.style.left = '0';
-            tempContainer.style.width = '850px'; 
-            tempContainer.style.background = 'var(--ivory)';
-            tempContainer.style.zIndex = '-1'; 
+            // Create a completely unconstrained wrapper to isolate it from responsive UI rules
+            const printWrapper = document.createElement('div');
+            printWrapper.style.width = '850px';
+            printWrapper.style.padding = '0';
+            printWrapper.style.margin = '0';
+            printWrapper.style.position = 'absolute';
+            printWrapper.style.top = '0';
+            printWrapper.style.left = '0';
+            printWrapper.style.zIndex = '-9999';
+            printWrapper.style.backgroundColor = '#FFFFFF';
             
-            // Clone the template precisely as it appears
-            const printClone = targetNode.cloneNode(true);
-            printClone.style.margin = '0 auto';
-            tempContainer.appendChild(printClone);
-            document.body.appendChild(tempContainer);
+            const clone = targetNode.cloneNode(true);
+            clone.style.boxShadow = 'none'; // Remove box-shadow for cleaner PDF rendering
+            clone.style.margin = '0';
+            printWrapper.appendChild(clone);
             
-            // Ensure document is at top so html2canvas captures absolute 0,0 accurately
-            window.scrollTo(0, 0);
+            // Append securely to the very top of the body
+            document.body.appendChild(printWrapper);
 
             const safeName = ptName ? ptName.replace(/\s+/g, '_') : 'Patient';
             const filename = `مركز_دانيا_الطبي_${safeName}.pdf`;
 
             const opt = {
-                margin:       [10, 10, 10, 10], 
+                margin:       10, 
                 filename:     filename,
-                pagebreak:    { mode: ['css', 'legacy'] },
+                pagebreak:    { mode: ['css', 'legacy'] }, // Prevents items snapping in half
                 image:        { type: 'jpeg', quality: 1 },
                 html2canvas:  { 
                     scale: 2, 
                     useCORS: true, 
                     logging: false,
-                    scrollY: 0
+                    width: 850,             // Crucial: strictly enforce drawing bounds width
+                    windowWidth: 850        // Crucial: bypass monitor limitations
                 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // Generate and cleanup
-            html2pdf().set(opt).from(printClone).save().then(() => {
-                document.body.removeChild(tempContainer);
+            // Generate and immediately clean up the cloned node
+            html2pdf().set(opt).from(printWrapper).save().then(() => {
+                document.body.removeChild(printWrapper);
                 closeQuoteModal();
                 clearQuoteSelection();
             });
