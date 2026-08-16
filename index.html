@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dania Medical Center - Front Office Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <!-- Implemented html2pdf.js for multi-page PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -250,15 +249,15 @@
                     <h3 id="qt-arabic" class="qt-arabic"></h3>
                     
                     <div class="qt-body-box" id="qt-body-box">
-                        <p id="qt-fasting-container" style="margin-top:0; border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 15px; margin-bottom: 15px;">
+                        <p id="qt-fasting-container" style="margin-top:0; border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 15px; margin-bottom: 15px; page-break-inside: avoid;">
                             <strong style="color: var(--charcoal); display:block; margin-bottom:5px;">Clinical Prep Notes:</strong> 
                             <span id="qt-fasting" style="color: #555; line-height: 1.6;"></span>
                         </p>
                         <div id="qt-tests" style="margin-top: 15px;"></div>
                     </div>
 
-                    <div class="qt-price-box" id="qt-price"></div>
-                    <div class="qt-footer">
+                    <div class="qt-price-box" id="qt-price" style="page-break-inside: avoid;"></div>
+                    <div class="qt-footer" style="page-break-inside: avoid;">
                         Amwaj Building, Shop 1-4, Al Jada, Sharjah, UAE<br>
                         This document is valid for 30 days. Subject to clinical indication and medical consultation.
                     </div>
@@ -816,7 +815,7 @@
                 const providerTag = provider ? `<span style="font-size: 13px; font-family: 'Montserrat', sans-serif; font-weight: 600; background: var(--soft-gold); color: var(--light-gold); padding: 4px 12px; border-radius: 20px; border: 1px solid var(--light-gold); margin-left: 12px; vertical-align: middle; display: inline-block; line-height: 1;">Lab: ${escapeHtml(provider)}</span>` : '';
 
                 combinedHTML += `
-                    <div style="border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 20px; margin-bottom: 20px;">
+                    <div style="border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 20px; margin-bottom: 20px; page-break-inside: avoid;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
                                 <div style="font-size: 22px; font-weight: 600; color: var(--charcoal); font-family: 'Playfair Display', serif;">${escapeHtml(cleanTitle)} ${providerTag}</div>
@@ -857,6 +856,14 @@
             const ptName = document.getElementById('patient-name-input').value.trim();
             const targetNode = document.getElementById('quote-template');
             
+            // Critical fix for html2canvas clipping bugs with scrollable containers
+            const previewPane = document.querySelector('.preview-pane');
+            const modalWindow = document.querySelector('.modal');
+            
+            // Temporarily remove overflow to stop engine from clipping the canvas bounds
+            previewPane.style.overflow = 'visible';
+            modalWindow.style.overflow = 'visible';
+            
             const safeName = ptName ? ptName.replace(/\s+/g, '_') : 'Patient';
             const filename = `مركز_دانيا_الطبي_${safeName}.pdf`;
 
@@ -864,13 +871,22 @@
             const opt = {
                 margin:       [10, 10, 10, 10], 
                 filename:     filename,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                pagebreak:    { mode: ['css', 'legacy'] }, // Prevents tests from breaking in half
+                image:        { type: 'jpeg', quality: 1 },
+                html2canvas:  { 
+                    scale: 2, 
+                    useCORS: true, 
+                    logging: false,
+                    windowWidth: 900 // Force canvas rendering at desktop width regardless of modal size
+                },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // Using html2pdf to generate and download a multi-page PDF document
+            // Generate and download a multi-page PDF document
             html2pdf().set(opt).from(targetNode).save().then(() => {
+                // Restore UI formatting
+                previewPane.style.overflow = 'auto';
+                modalWindow.style.overflow = 'auto';
                 closeQuoteModal();
                 clearQuoteSelection();
             });
