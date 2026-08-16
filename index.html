@@ -848,45 +848,53 @@
             document.getElementById('qt-price').innerText = hasPriceOnRequest ? `Total: ${formattedTotal} AED + items to confirm` : `Total: ${formattedTotal} AED`;
         }
 
+        // Fixed PDF Rendering Logic
         function executeQuoteDownload() {
             if (selectedItemsForQuote.size === 0) return;
             
-            updatePreview(); // Ensure the latest inputs are processed
+            updatePreview(); 
             
             const ptName = document.getElementById('patient-name-input').value.trim();
             const targetNode = document.getElementById('quote-template');
             
-            // Critical fix for html2canvas clipping bugs with scrollable containers
-            const previewPane = document.querySelector('.preview-pane');
-            const modalWindow = document.querySelector('.modal');
+            // Create a temporary unconstrained container to prevent modal-clipping bugs
+            const tempContainer = document.createElement('div');
+            tempContainer.style.position = 'absolute';
+            tempContainer.style.top = '0';
+            tempContainer.style.left = '0';
+            tempContainer.style.width = '850px'; 
+            tempContainer.style.background = 'var(--ivory)';
+            tempContainer.style.zIndex = '-1'; 
             
-            // Temporarily remove overflow to stop engine from clipping the canvas bounds
-            previewPane.style.overflow = 'visible';
-            modalWindow.style.overflow = 'visible';
+            // Clone the template precisely as it appears
+            const printClone = targetNode.cloneNode(true);
+            printClone.style.margin = '0 auto';
+            tempContainer.appendChild(printClone);
+            document.body.appendChild(tempContainer);
             
+            // Ensure document is at top so html2canvas captures absolute 0,0 accurately
+            window.scrollTo(0, 0);
+
             const safeName = ptName ? ptName.replace(/\s+/g, '_') : 'Patient';
             const filename = `مركز_دانيا_الطبي_${safeName}.pdf`;
 
-            // Setup html2pdf configuration parameters
             const opt = {
                 margin:       [10, 10, 10, 10], 
                 filename:     filename,
-                pagebreak:    { mode: ['css', 'legacy'] }, // Prevents tests from breaking in half
+                pagebreak:    { mode: ['css', 'legacy'] },
                 image:        { type: 'jpeg', quality: 1 },
                 html2canvas:  { 
                     scale: 2, 
                     useCORS: true, 
                     logging: false,
-                    windowWidth: 900 // Force canvas rendering at desktop width regardless of modal size
+                    scrollY: 0
                 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // Generate and download a multi-page PDF document
-            html2pdf().set(opt).from(targetNode).save().then(() => {
-                // Restore UI formatting
-                previewPane.style.overflow = 'auto';
-                modalWindow.style.overflow = 'auto';
+            // Generate and cleanup
+            html2pdf().set(opt).from(printClone).save().then(() => {
+                document.body.removeChild(tempContainer);
                 closeQuoteModal();
                 clearQuoteSelection();
             });
