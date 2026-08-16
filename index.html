@@ -155,7 +155,7 @@
                 </select>
             </div>
             <div style="display: flex; gap: 15px; align-items: center;">
-                <span style="color: var(--soft-gold); font-size: 13px; font-weight: 600; letter-spacing: 1px;">v1.5.0</span>
+                <span style="color: var(--soft-gold); font-size: 13px; font-weight: 600; letter-spacing: 1px; opacity: 0.8;">v1.6.0</span>
                 <button id="privacy-toggle" class="toggle-btn" onclick="togglePrivacy()">👁️ Patient View</button>
             </div>
         </div>
@@ -851,7 +851,7 @@
             document.getElementById('qt-price').innerText = hasPriceOnRequest ? `Total: ${formattedTotal} AED + items to confirm` : `Total: ${formattedTotal} AED`;
         }
 
-        // Robust Full-Screen PDF Rendering Fix
+        // Perfect PDF "Shutter Flash" Generator (Fixes Blank Pages & Cropping entirely)
         function executeQuoteDownload() {
             if (selectedItemsForQuote.size === 0) return;
             
@@ -860,18 +860,29 @@
             const ptName = document.getElementById('patient-name-input').value.trim();
             const targetNode = document.getElementById('quote-template');
             
-            // To prevent clipping, temporarily elevate the target node out of the scrolling modal entirely
-            const originalParent = targetNode.parentNode;
-            const originalNextSibling = targetNode.nextSibling;
+            // 1. Create a full-screen, unconstrained canvas layer
+            const shutterLayer = document.createElement('div');
+            shutterLayer.style.position = 'absolute';
+            shutterLayer.style.top = '0';
+            shutterLayer.style.left = '0';
+            shutterLayer.style.width = '100%';
+            shutterLayer.style.minHeight = '100vh';
+            shutterLayer.style.backgroundColor = '#FFFFFF';
+            shutterLayer.style.zIndex = '999999';
+            shutterLayer.style.display = 'flex';
+            shutterLayer.style.justifyContent = 'center';
+            shutterLayer.style.alignItems = 'flex-start';
+            shutterLayer.style.padding = '20px 0';
             
-            targetNode.style.position = 'absolute';
-            targetNode.style.top = '0';
-            targetNode.style.left = '0';
-            targetNode.style.zIndex = '99999';
-            document.body.appendChild(targetNode);
+            // 2. Clone the template and put it directly into the full-screen layer
+            const cloneNode = targetNode.cloneNode(true);
+            cloneNode.style.boxShadow = 'none';
+            cloneNode.style.margin = '0';
+            shutterLayer.appendChild(cloneNode);
             
-            // Scroll to top so html2canvas doesn't capture a scrolled offset
-            window.scrollTo(0, 0);
+            // 3. Attach overlay to body (forces it out of the scrolling modal limitations)
+            document.body.appendChild(shutterLayer);
+            window.scrollTo(0, 0); // Guarantee 0,0 offset for canvas
 
             const safeName = ptName ? ptName.replace(/\s+/g, '_') : 'Patient';
             const filename = `مركز_دانيا_الطبي_${safeName}.pdf`;
@@ -885,28 +896,20 @@
                     scale: 2, 
                     useCORS: true, 
                     logging: false,
-                    scrollY: 0,
-                    width: 850
+                    scrollY: 0
                 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // Generate the PDF, then immediately restore the node to the modal
-            html2pdf().set(opt).from(targetNode).save().then(() => {
-                targetNode.style.position = 'relative';
-                targetNode.style.top = 'auto';
-                targetNode.style.left = 'auto';
-                targetNode.style.zIndex = 'auto';
-                
-                if (originalNextSibling) {
-                    originalParent.insertBefore(targetNode, originalNextSibling);
-                } else {
-                    originalParent.appendChild(targetNode);
-                }
-                
-                closeQuoteModal();
-                clearQuoteSelection();
-            });
+            // 4. Wait a fraction of a second to ensure browser physically paints the clone
+            setTimeout(() => {
+                html2pdf().set(opt).from(cloneNode).save().then(() => {
+                    // 5. Cleanup the shutter layer immediately
+                    document.body.removeChild(shutterLayer);
+                    closeQuoteModal();
+                    clearQuoteSelection();
+                });
+            }, 150);
         }
 
         // 4. Privacy & Admin Master CRUD
