@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dania Medical Center - Front Office Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Implemented html2pdf.js for multi-page PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
@@ -113,7 +114,6 @@
         .preview-pane { width: 100%; overflow-x: auto; background: #f4f6f8; padding: 25px; border-radius: 10px; border: 1px solid #e2e8f0; display: flex; justify-content: center; box-sizing: border-box; }
 
         #quote-template { width: 850px; padding: 60px; background-color: var(--white); color: var(--charcoal); box-sizing: border-box; font-family: 'Montserrat', sans-serif; position: relative; margin: 0 auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05);}
-        #quote-template::after { content: ''; position: absolute; top: 20px; left: 20px; right: 20px; bottom: 20px; border: 1px solid var(--light-gold); pointer-events: none; }
         .qt-header { text-align: center; margin-bottom: 40px; }
         .qt-header img { max-width: 280px; }
         .qt-patient { font-size: 18px; font-weight: 500; margin-bottom: 30px; padding: 15px; background: var(--soft-blush); border-left: 4px solid var(--blush-rose); text-align: left; color: var(--charcoal); }
@@ -234,7 +234,8 @@
                 <h3>Treatment Plan Preview</h3>
                 <div style="display: flex; gap: 10px;">
                     <button onclick="closeQuoteModal()" style="background: #f1f1f1; color: var(--charcoal);">Cancel</button>
-                    <button onclick="executeQuoteDownload()" class="quote-btn">Download Image</button>
+                    <!-- PDF Trigger Button -->
+                    <button onclick="executeQuoteDownload()" class="quote-btn">Download PDF</button>
                 </div>
             </div>
             
@@ -855,14 +856,21 @@
             
             const ptName = document.getElementById('patient-name-input').value.trim();
             const targetNode = document.getElementById('quote-template');
+            
+            const safeName = ptName ? ptName.replace(/\s+/g, '_') : 'Patient';
+            const filename = `مركز_دانيا_الطبي_${safeName}.pdf`;
 
-            // Generate image directly from the visible preview
-            html2canvas(targetNode, { scale: 2, backgroundColor: "#FFFFFF", useCORS: true }).then(canvas => {
-                const link = document.createElement('a');
-                const safeName = ptName ? ptName.replace(/\s+/g, '_') : 'Patient';
-                link.download = `مركز_دانيا_الطبي_${safeName}.png`;
-                link.href = canvas.toDataURL('image/png'); 
-                link.click();
+            // Setup html2pdf configuration parameters
+            const opt = {
+                margin:       [10, 10, 10, 10], 
+                filename:     filename,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Using html2pdf to generate and download a multi-page PDF document
+            html2pdf().set(opt).from(targetNode).save().then(() => {
                 closeQuoteModal();
                 clearQuoteSelection();
             });
