@@ -154,7 +154,10 @@
                     <option value="">All Providers</option>
                 </select>
             </div>
-            <button id="privacy-toggle" class="toggle-btn" onclick="togglePrivacy()">👁️ Patient View</button>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <span style="color: var(--soft-gold); font-size: 13px; font-weight: 600; letter-spacing: 1px;">v1.5.0</span>
+                <button id="privacy-toggle" class="toggle-btn" onclick="togglePrivacy()">👁️ Patient View</button>
+            </div>
         </div>
 
         <div class="header no-print">
@@ -848,33 +851,27 @@
             document.getElementById('qt-price').innerText = hasPriceOnRequest ? `Total: ${formattedTotal} AED + items to confirm` : `Total: ${formattedTotal} AED`;
         }
 
-        // Fixed PDF Rendering Logic
+        // Robust Full-Screen PDF Rendering Fix
         function executeQuoteDownload() {
             if (selectedItemsForQuote.size === 0) return;
             
-            updatePreview(); // Ensure the latest inputs are processed
+            updatePreview(); 
             
             const ptName = document.getElementById('patient-name-input').value.trim();
             const targetNode = document.getElementById('quote-template');
             
-            // Create a completely unconstrained wrapper to isolate it from responsive UI rules
-            const printWrapper = document.createElement('div');
-            printWrapper.style.width = '850px';
-            printWrapper.style.padding = '0';
-            printWrapper.style.margin = '0';
-            printWrapper.style.position = 'absolute';
-            printWrapper.style.top = '0';
-            printWrapper.style.left = '0';
-            printWrapper.style.zIndex = '-9999';
-            printWrapper.style.backgroundColor = '#FFFFFF';
+            // To prevent clipping, temporarily elevate the target node out of the scrolling modal entirely
+            const originalParent = targetNode.parentNode;
+            const originalNextSibling = targetNode.nextSibling;
             
-            const clone = targetNode.cloneNode(true);
-            clone.style.boxShadow = 'none'; // Remove box-shadow for cleaner PDF rendering
-            clone.style.margin = '0';
-            printWrapper.appendChild(clone);
+            targetNode.style.position = 'absolute';
+            targetNode.style.top = '0';
+            targetNode.style.left = '0';
+            targetNode.style.zIndex = '99999';
+            document.body.appendChild(targetNode);
             
-            // Append securely to the very top of the body
-            document.body.appendChild(printWrapper);
+            // Scroll to top so html2canvas doesn't capture a scrolled offset
+            window.scrollTo(0, 0);
 
             const safeName = ptName ? ptName.replace(/\s+/g, '_') : 'Patient';
             const filename = `مركز_دانيا_الطبي_${safeName}.pdf`;
@@ -882,21 +879,31 @@
             const opt = {
                 margin:       10, 
                 filename:     filename,
-                pagebreak:    { mode: ['css', 'legacy'] }, // Prevents items snapping in half
+                pagebreak:    { mode: ['css', 'legacy'] },
                 image:        { type: 'jpeg', quality: 1 },
                 html2canvas:  { 
                     scale: 2, 
                     useCORS: true, 
                     logging: false,
-                    width: 850,             // Crucial: strictly enforce drawing bounds width
-                    windowWidth: 850        // Crucial: bypass monitor limitations
+                    scrollY: 0,
+                    width: 850
                 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // Generate and immediately clean up the cloned node
-            html2pdf().set(opt).from(printWrapper).save().then(() => {
-                document.body.removeChild(printWrapper);
+            // Generate the PDF, then immediately restore the node to the modal
+            html2pdf().set(opt).from(targetNode).save().then(() => {
+                targetNode.style.position = 'relative';
+                targetNode.style.top = 'auto';
+                targetNode.style.left = 'auto';
+                targetNode.style.zIndex = 'auto';
+                
+                if (originalNextSibling) {
+                    originalParent.insertBefore(targetNode, originalNextSibling);
+                } else {
+                    originalParent.appendChild(targetNode);
+                }
+                
                 closeQuoteModal();
                 clearQuoteSelection();
             });
