@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dania Medical Center - Front Office Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
@@ -110,18 +109,17 @@
         .modal h3 { font-size: 24px; margin-top: 0; color: var(--charcoal); margin-bottom: 0;}
         .modal input { width: 100%; max-width: 400px; padding: 12px 15px; margin: 10px 0 25px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; font-family: 'Montserrat', sans-serif; outline: none; }
         
-        .preview-pane { width: 100%; overflow-x: auto; background: #f4f6f8; padding: 25px; border-radius: 10px; border: 1px solid #e2e8f0; display: flex; justify-content: center; box-sizing: border-box; }
+        .preview-pane { width: 100%; background: var(--white); padding: 0; border-radius: 10px; display: flex; justify-content: center; box-sizing: border-box; }
 
-        #quote-template { width: 850px; padding: 60px; background-color: var(--white); color: var(--charcoal); box-sizing: border-box; font-family: 'Montserrat', sans-serif; position: relative; margin: 0 auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05);}
+        #quote-template { width: 100%; padding: 0; background-color: var(--white); color: var(--charcoal); box-sizing: border-box; font-family: 'Montserrat', sans-serif; position: relative;}
         .qt-header { text-align: center; margin-bottom: 40px; }
         .qt-header img { max-width: 280px; }
         .qt-patient { font-size: 18px; font-weight: 500; margin-bottom: 30px; padding: 15px; background: var(--soft-blush); border-left: 4px solid var(--blush-rose); text-align: left; color: var(--charcoal); }
         .qt-title { font-family: 'Playfair Display', serif; font-size: 32px; color: var(--charcoal); margin: 0 0 10px 0; text-align: center;}
         .qt-arabic { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--light-gold); margin: 0 0 30px 0; text-align: center; direction: rtl;}
-        .qt-body-box { background: var(--soft-gold); padding: 30px; border-radius: 8px; margin-bottom: 30px; }
-        .qt-price-box { font-size: 36px; font-weight: 600; color: var(--light-gold); text-align: center; margin: 30px 0; font-family: 'Playfair Display', serif; border-top: 2px dashed var(--light-gold); padding-top: 20px;}
-        .qt-footer { text-align: center; margin-top: 40px; font-size: 12px; color: #888; border-top: 1px solid #eee; padding-top: 20px; }
-
+        .qt-body-box { background: var(--white); padding: 0; border-radius: 8px; margin-bottom: 30px; }
+        .qt-price-box { text-align: left; margin: 30px 0; font-family: 'Playfair Display', serif; border-top: 2px dashed var(--light-gold); padding-top: 20px;}
+        
         body.privacy-mode .internal-data { display: none !important; }
         body.privacy-mode .admin-controls { display: none !important; }
 
@@ -155,7 +153,7 @@
                 </select>
             </div>
             <div style="display: flex; gap: 15px; align-items: center;">
-                <span style="color: var(--soft-gold); font-size: 13px; font-weight: 600; letter-spacing: 1px; opacity: 0.8;">v1.6.0</span>
+                <span style="color: var(--soft-gold); font-size: 13px; font-weight: 600; letter-spacing: 1px; opacity: 0.8;">v1.7.0</span>
                 <button id="privacy-toggle" class="toggle-btn" onclick="togglePrivacy()">👁️ Patient View</button>
             </div>
         </div>
@@ -225,45 +223,35 @@
         <span id="quote-count" style="font-weight: 600; font-size: 15px;">0 Items Selected</span>
         <div style="display: flex; gap: 10px;">
             <button onclick="clearQuoteSelection()" style="background: transparent; border: 1px solid var(--white); color: var(--white); padding: 10px 20px;">Clear List</button>
-            <button onclick="openMultiQuoteModal()" style="background: var(--light-gold); padding: 10px 20px; color: white;">Generate Quote</button>
+            <button onclick="openMultiQuoteModal()" style="background: var(--light-gold); padding: 10px 20px; color: white;">View Summary & Analytics</button>
         </div>
     </div>
 
-    <!-- Modifed Modal for Live Preview -->
+    <!-- Modifed Modal for Internal Summary Viewer -->
     <div id="quote-modal" class="modal-overlay">
         <div class="modal">
             <div class="modal-header-row">
-                <h3>Treatment Plan Preview</h3>
+                <h3>Treatment Plan Analytics</h3>
                 <div style="display: flex; gap: 10px;">
-                    <button onclick="closeQuoteModal()" style="background: #f1f1f1; color: var(--charcoal);">Cancel</button>
-                    <!-- PDF Trigger Button -->
-                    <button onclick="executeQuoteDownload()" class="quote-btn">Download PDF</button>
+                    <button onclick="closeQuoteModal()" class="quote-btn">Close Viewer</button>
                 </div>
             </div>
             
-            <p style="font-size: 14px; color: #666; margin-bottom: 5px;">Enter patient details to personalize the combined quote.</p>
             <input type="text" id="patient-name-input" placeholder="Patient Name or Phone (Optional)" onkeyup="updatePreview()">
             
             <div class="preview-pane">
                 <div id="quote-template">
-                    <div class="qt-header"><img src="https://daniamc.com/DMC_Marketing_Logo_Source_edited%20copy.png" alt="Logo"></div>
                     <div id="qt-patient-box" class="qt-patient"></div>
-                    <h2 id="qt-title" class="qt-title"></h2>
-                    <h3 id="qt-arabic" class="qt-arabic"></h3>
                     
                     <div class="qt-body-box" id="qt-body-box">
-                        <p id="qt-fasting-container" style="margin-top:0; border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 15px; margin-bottom: 15px; page-break-inside: avoid;">
+                        <p id="qt-fasting-container" style="margin-top:0; border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 15px; margin-bottom: 15px;">
                             <strong style="color: var(--charcoal); display:block; margin-bottom:5px;">Clinical Prep Notes:</strong> 
                             <span id="qt-fasting" style="color: #555; line-height: 1.6;"></span>
                         </p>
                         <div id="qt-tests" style="margin-top: 15px;"></div>
                     </div>
 
-                    <div class="qt-price-box" id="qt-price" style="page-break-inside: avoid;"></div>
-                    <div class="qt-footer" style="page-break-inside: avoid;">
-                        Amwaj Building, Shop 1-4, Al Jada, Sharjah, UAE<br>
-                        This document is valid for 30 days. Subject to clinical indication and medical consultation.
-                    </div>
+                    <div class="qt-price-box" id="qt-price"></div>
                 </div>
             </div>
         </div>
@@ -686,7 +674,7 @@
 
                 const isSelected = selectedItemsForQuote.has(item.id);
                 const btnStyle = isSelected ? `background-color: var(--success-green); color: #155724; border: 1px solid #155724;` : ``;
-                const btnText = isSelected ? `✓ Added` : `➕ Add to Quote`;
+                const btnText = isSelected ? `✓ Added` : `➕ Add to Summary`;
 
                 // Admin Controls
                 const adminBtns = isAdmin && item.id < 10000 ? `
@@ -785,7 +773,7 @@
 
         function openMultiQuoteModal() {
             document.getElementById('patient-name-input').value = '';
-            updatePreview(); // Generate initial layout for preview
+            updatePreview(); 
             document.getElementById('quote-modal').style.display = 'flex';
         }
 
@@ -797,34 +785,53 @@
             const ptName = document.getElementById('patient-name-input').value.trim();
             const ptBox = document.getElementById('qt-patient-box');
             if (ptName) { ptBox.style.display = 'block'; ptBox.innerHTML = `<strong>Prepared For:</strong> ${escapeHtml(ptName)}`; } else { ptBox.style.display = 'none'; }
-
-            document.getElementById('qt-title').innerText = "Personalized Treatment Plan"; 
-            document.getElementById('qt-arabic').innerText = "خطة العلاج المخصصة";
             
             let totalPrice = 0;
+            let totalCost = 0;
             let hasPriceOnRequest = false;
             let combinedHTML = "";
             let combinedFasting = [];
 
+            let selectedTestTitles = [];
+
             selectedItemsForQuote.forEach((item) => {
                 const itemPrice = parsePrice(item.price);
+                const itemCostNum = parsePrice(item.cost);
+                
                 if (itemPrice > 0) totalPrice += itemPrice;
                 else hasPriceOnRequest = true;
+
+                if (itemCostNum > 0) totalCost += itemCostNum;
+
+                const itemMargin = itemPrice - itemCostNum;
+                const marginText = (itemPrice > 0 && itemCostNum > 0) ? `+${itemMargin % 1 !== 0 ? itemMargin.toFixed(2) : itemMargin} AED` : 'N/A';
+
                 const cleanTitle = item.title.replace(/^\d+\.\s*/, '');
                 const patientNote = item.fasting || getPatientNote(item);
                 const provider = getProvider(item);
+
+                // Collect individual tests (not profiles) to feed into the Recommendation Engine
+                if (!cleanTitle.toUpperCase().includes("PROFILE") && !cleanTitle.toUpperCase().includes("PACKAGE")) {
+                    selectedTestTitles.push(cleanTitle);
+                }
                 
-                // Add dynamically generated Lab Tag if provider is found
                 const providerTag = provider ? `<span style="font-size: 13px; font-family: 'Montserrat', sans-serif; font-weight: 600; background: var(--soft-gold); color: var(--light-gold); padding: 4px 12px; border-radius: 20px; border: 1px solid var(--light-gold); margin-left: 12px; vertical-align: middle; display: inline-block; line-height: 1;">Lab: ${escapeHtml(provider)}</span>` : '';
 
                 combinedHTML += `
-                    <div style="border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 20px; margin-bottom: 20px; page-break-inside: avoid;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 20px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
                             <div>
-                                <div style="font-size: 22px; font-weight: 600; color: var(--charcoal); font-family: 'Playfair Display', serif;">${escapeHtml(cleanTitle)} ${providerTag}</div>
-                                ${item.arabicTitle ? `<div style="color: var(--light-gold); font-size: 18px; direction: rtl;">${escapeHtml(item.arabicTitle)}</div>` : ''}
+                                <div style="font-size: 20px; font-weight: 600; color: var(--charcoal); font-family: 'Playfair Display', serif;">${escapeHtml(cleanTitle)} ${providerTag}</div>
+                                ${item.arabicTitle ? `<div style="color: var(--light-gold); font-size: 16px; direction: rtl; margin-top: 5px;">${escapeHtml(item.arabicTitle)}</div>` : ''}
                             </div>
-                            <div style="font-size: 20px; font-weight: bold; color: var(--charcoal);">${escapeHtml(item.price)}</div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 20px; font-weight: bold; color: var(--charcoal);">${escapeHtml(item.price)}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 15px; margin-top: 10px; font-size: 14px;">
+                            <span style="color: #475569; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; border: 1px dashed #cbd5e1;">Cost: ${escapeHtml(item.cost)}</span>
+                            <span style="color: #166534; background: #f0fdf4; padding: 4px 10px; border-radius: 6px; border: 1px dashed #86efac;">Profit: ${marginText}</span>
                         </div>
                 `;
 
@@ -837,7 +844,59 @@
                 combinedHTML += `</div>`;
             });
 
-            document.getElementById('qt-tests').innerHTML = combinedHTML;
+            // Smart Recommendation Engine Logic
+            let bestProfile = null;
+            let maxMatches = 0;
+            let matchedTests = [];
+
+            if (selectedTestTitles.length >= 1) { 
+                for (const [profileName, testsIncluded] of Object.entries(avmProfileTests)) {
+                    let currentMatches = [];
+                    const testsIncludedUpper = testsIncluded.toUpperCase();
+                    
+                    selectedTestTitles.forEach(title => {
+                        // Standardize matching
+                        if (testsIncludedUpper.includes(title.toUpperCase())) {
+                            currentMatches.push(title);
+                        }
+                    });
+
+                    if (currentMatches.length > maxMatches) {
+                        maxMatches = currentMatches.length;
+                        bestProfile = profileName;
+                        matchedTests = currentMatches;
+                    }
+                }
+            }
+
+            let recommendationHTML = "";
+            if (bestProfile && maxMatches >= 2) { 
+                // Suggest only if profile covers at least 2 selected individual tests
+                let profileData = appData.individual.find(i => i.title.toUpperCase() === bestProfile.toUpperCase());
+                if (profileData) {
+                    const pPrice = parsePrice(profileData.price);
+                    const pCost = parsePrice(profileData.cost);
+                    const pMargin = pPrice - pCost;
+                    
+                    recommendationHTML = `
+                        <div style="background-color: #fffbeb; border: 1px solid #fcd34d; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #f59e0b;">
+                            <h4 style="color: #b45309; margin-top: 0; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                                <span>💡</span> Smart Profile Recommendation
+                            </h4>
+                            <p style="margin: 0 0 12px 0; font-size: 14px; color: #92400e;">
+                                Your selection includes <strong>${maxMatches} tests</strong> (${escapeHtml(matchedTests.join(', '))}) that are covered by <strong>${escapeHtml(bestProfile)}</strong>.
+                            </p>
+                            <div style="font-size: 14px; display: flex; gap: 15px; flex-wrap: wrap;">
+                                <span style="color: var(--charcoal); font-weight: 600;">Profile Retail: ${escapeHtml(profileData.price)}</span>
+                                <span style="color: #475569;">Profile Cost: ${escapeHtml(profileData.cost)}</span>
+                                <span style="color: #166534;">Profile Profit: ${pMargin.toFixed(2)} AED</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            document.getElementById('qt-tests').innerHTML = recommendationHTML + combinedHTML;
 
             const fastingContainer = document.getElementById('qt-fasting-container');
             if (combinedFasting.length > 0) {
@@ -848,68 +907,17 @@
             }
 
             const formattedTotal = totalPrice % 1 !== 0 ? totalPrice.toFixed(2) : totalPrice;
-            document.getElementById('qt-price').innerText = hasPriceOnRequest ? `Total: ${formattedTotal} AED + items to confirm` : `Total: ${formattedTotal} AED`;
-        }
+            const formattedCost = totalCost % 1 !== 0 ? totalCost.toFixed(2) : totalCost;
+            const totalMargin = totalPrice - totalCost;
+            const formattedMargin = totalMargin % 1 !== 0 ? totalMargin.toFixed(2) : totalMargin;
 
-        // Perfect PDF "Shutter Flash" Generator (Fixes Blank Pages & Cropping entirely)
-        function executeQuoteDownload() {
-            if (selectedItemsForQuote.size === 0) return;
-            
-            updatePreview(); 
-            
-            const ptName = document.getElementById('patient-name-input').value.trim();
-            const targetNode = document.getElementById('quote-template');
-            
-            // 1. Create a full-screen, unconstrained canvas layer
-            const shutterLayer = document.createElement('div');
-            shutterLayer.style.position = 'absolute';
-            shutterLayer.style.top = '0';
-            shutterLayer.style.left = '0';
-            shutterLayer.style.width = '100%';
-            shutterLayer.style.minHeight = '100vh';
-            shutterLayer.style.backgroundColor = '#FFFFFF';
-            shutterLayer.style.zIndex = '999999';
-            shutterLayer.style.display = 'flex';
-            shutterLayer.style.justifyContent = 'center';
-            shutterLayer.style.alignItems = 'flex-start';
-            shutterLayer.style.padding = '20px 0';
-            
-            // 2. Clone the template and put it directly into the full-screen layer
-            const cloneNode = targetNode.cloneNode(true);
-            cloneNode.style.boxShadow = 'none';
-            cloneNode.style.margin = '0';
-            shutterLayer.appendChild(cloneNode);
-            
-            // 3. Attach overlay to body (forces it out of the scrolling modal limitations)
-            document.body.appendChild(shutterLayer);
-            window.scrollTo(0, 0); // Guarantee 0,0 offset for canvas
-
-            const safeName = ptName ? ptName.replace(/\s+/g, '_') : 'Patient';
-            const filename = `مركز_دانيا_الطبي_${safeName}.pdf`;
-
-            const opt = {
-                margin:       10, 
-                filename:     filename,
-                pagebreak:    { mode: ['css', 'legacy'] },
-                image:        { type: 'jpeg', quality: 1 },
-                html2canvas:  { 
-                    scale: 2, 
-                    useCORS: true, 
-                    logging: false,
-                    scrollY: 0
-                },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            // 4. Wait a fraction of a second to ensure browser physically paints the clone
-            setTimeout(() => {
-                html2pdf().set(opt).from(cloneNode).save().then(() => {
-                    // 5. Cleanup the shutter layer immediately
-                    document.body.removeChild(shutterLayer);
-                    closeQuoteModal();
-                    clearQuoteSelection();
-                });
-            }, 150);
+            document.getElementById('qt-price').innerHTML = `
+                <div style="font-size: 32px; color: var(--charcoal); margin-bottom: 10px;">
+                    ${hasPriceOnRequest ? `Total Retail: ${formattedTotal} AED <span style="font-size: 16px; color: #ff4c4c;">+ items to confirm</span>` : `Total Retail: ${formattedTotal} AED`}
+                </div>
+                <div style="font-size: 20px; color: #475569; font-weight: 500; margin-bottom: 5px;">Total Cost: ${formattedCost} AED</div>
+                <div style="font-size: 20px; color: #166534; font-weight: 500;">Total Profit: +${formattedMargin} AED</div>
+            `;
         }
 
         // 4. Privacy & Admin Master CRUD
